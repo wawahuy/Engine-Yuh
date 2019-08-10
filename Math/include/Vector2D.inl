@@ -93,7 +93,11 @@ Vec2f VectorNormalize(Vec2<T> v) {
 	);
 }
 
-
+// |v1|*|v2|*sin(theta)
+template<typename T>
+float VectorCross(const Vec2<T>& v1, const Vec2<T>& v2) {
+	return v1.x*v2.y - v1.y*v2.x;
+}
 
 
 /* Print Vector
@@ -109,4 +113,10 @@ template<typename T>
 std::ostream& operator<<(std::ostream& out, const Vec2<T> &v) {
 	Print(v, out);
 	return out;
+}
+
+
+template<typename T>
+std::string to_string(const Vec2<T>& v) {
+	return "(" + std::to_string(v.x) + ":" + std::to_string(v.y) + ")";
 }

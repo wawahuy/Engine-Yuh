@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)Math\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physical\include;$(SolutionDir)Math\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,8 +114,11 @@
     <ClCompile Include="src\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Math\Math.vcxproj">
-      <Project>{dcdbaad1-a9ba-42d3-b9a9-ea2f643e16af}</Project>
+    <ProjectReference Include="..\Graphics\Graphics.vcxproj">
+      <Project>{d1e6b16a-6d84-4819-8b75-cdafd0953e43}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Physical\Physical.vcxproj">
+      <Project>{962114cc-7ae3-44a0-8acf-b7e00b0fe8b5}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
