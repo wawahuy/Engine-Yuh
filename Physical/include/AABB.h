@@ -11,7 +11,7 @@
 
 
 #include "Export.h"
-#include <Math.h>
+#include <YMath.h>
 #include <Vector3D.h>
 
 S_NS_PHYSICAL
@@ -22,8 +22,8 @@ public:
 	Vec2f max;
 
 	AABB  Combine(const AABB& aabb);
-	bool  Overlap(const AABB& aabb);
-	bool  Contains(const AABB& aabb);
+	bool  Overlap(const AABB& aabb) const;
+	bool  Contains(const AABB& aabb) const;
 	float Area();
 };
 

@@ -29,10 +29,7 @@
     <ClInclude Include="include\Vector2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Array.h">
+    <ClInclude Include="include\YMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

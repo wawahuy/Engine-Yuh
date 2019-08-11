@@ -116,11 +116,9 @@
   <ItemGroup>
     <ClInclude Include="include\AABB.h" />
     <ClInclude Include="include\Broadphase.h" />
-    <ClInclude Include="include\DynamicTree.h" />
     <ClInclude Include="include\Export.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\DynamicTree.cpp" />
     <ClCompile Include="src\Broadphase.cpp" />
     <ClCompile Include="src\AABB.cpp" />
   </ItemGroup>
