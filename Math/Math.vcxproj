@@ -114,6 +114,7 @@
     <None Include="include\Vector3D.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Math.h" />
     <ClInclude Include="include\Vector2D.h" />
     <ClInclude Include="include\Vector3D.h" />
   </ItemGroup>

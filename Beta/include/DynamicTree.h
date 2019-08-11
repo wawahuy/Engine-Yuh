@@ -40,11 +40,13 @@ public:
 	void Remove(ICollider* object);
 	void Update();
 	const IColliderPairList& ComputePair();
+	void QueryAllNode(IColliderList& list, std::vector<AABB*>& aabbs, const AABB& aabb);
+
 	const DTNodeList& GetListNode();
 	DTNode* GetRoot();
 	int GetHeight();
-
-	void QueryAllNode(IColliderList& list, std::vector<AABB*>& aabbs, const AABB& aabb);
+	int GetBalanceMax();
+	int GetNumMoveObject();
 
 
 private:
@@ -52,7 +54,9 @@ private:
 	void ComputeAABBObject(DTNode* node);
 	void Query(const AABB& aabb);
 	bool QueryCallback(int index);
-	
+
+	void Balance(int index);
+
 	IColliderPairList m_colliderPairList;
 	DTNodeList m_listNode;
 	DTNode* m_root;

@@ -30,6 +30,32 @@ int DynamicTree::GetHeight()
 	return m_root->height;
 }
 
+int DynamicTree::GetBalanceMax()
+{
+	int balanceMax = 0;
+	int stack[256];
+	int cstack = 0;
+	stack[cstack++] = m_root->index;
+
+	while (cstack) {
+		DTNode *node = m_listNode[stack[--cstack]];
+		if (!node->IsLeaf()) {
+			int balance = m_listNode[node->left]->height - m_listNode[node->right]->height;
+			if (abs(balance) > abs(balanceMax))
+				balanceMax = balance;
+			stack[cstack++] = node->left;
+			stack[cstack++] = node->right;
+		}
+	}
+	
+	return balanceMax;
+}
+
+int DynamicTree::GetNumMoveObject()
+{
+	return m_moveIndex.size();
+}
+
 
 
 void DynamicTree::ComputeAABBObject(DTNode * node)
@@ -138,17 +164,17 @@ void DynamicTree::Update()
 				int size = m_pairIndex.size();
 				
 				while (i < size) {
-					std::pair<unsigned int, unsigned int> p1 = m_pairIndex[i];
+					const std::pair<unsigned int, unsigned int> &p1 = m_pairIndex[i];
 					if (p1.first == node->index || p1.second == node->index) {
 
 						int j = i;
 						while (++j < size) {
-							std::pair<unsigned int, unsigned int> p2 = m_pairIndex[j];
+							const std::pair<unsigned int, unsigned int> &p2 = m_pairIndex[j];
 							if (p2.first != node->index && p2.second != node->index)
 								break;
 						}
 
-						auto begin = m_pairIndex.begin();
+						auto &begin = m_pairIndex.begin();
 						m_pairIndex.erase(begin + i, begin + j);
 						size = m_pairIndex.size();
 					}
@@ -199,6 +225,7 @@ bool DynamicTree::QueryCallback(int index)
 	return true;
 }
 
+
 bool PairLessThan(const std::pair<unsigned int, unsigned int>& A, const std::pair<unsigned int, unsigned int>& B)
 {
 	if (A.first < B.first)
@@ -234,7 +261,7 @@ const IColliderPairList & DynamicTree::ComputePair()
 	int i = 0;
 	int size = m_pairIndex.size();
 	while (i < size) {
-		std::pair<unsigned int, unsigned int> p1 = m_pairIndex[i];
+		const std::pair<unsigned int, unsigned int> &p1 = m_pairIndex[i];
 		m_colliderPairList.push_back(std::make_pair(
 			m_listNode[p1.first]->userdata,
 			m_listNode[p1.second]->userdata
@@ -242,7 +269,7 @@ const IColliderPairList & DynamicTree::ComputePair()
 
 		++i;
 		while (i < size) {
-			std::pair<unsigned int, unsigned int> p2 = m_pairIndex[i];
+			const std::pair<unsigned int, unsigned int> &p2 = m_pairIndex[i];
 			if (p1.first != p2.first || p1.second != p2.second)
 				break;
 			m_pairIndex.erase(m_pairIndex.begin() + i);
@@ -262,7 +289,7 @@ void DynamicTree::InsertNode(DTNode * node, int index, int branchIndex)
 	if (p->IsLeaf()) {
 		DTNode *newNode;
 		if (branchIndex == -1) {
-			newNode = new DTNode();
+			newNode = new DTNode();             
 			newNode->index = m_listNode.size();
 			m_listNode.push_back(newNode);
 		}
@@ -296,6 +323,7 @@ void DynamicTree::InsertNode(DTNode * node, int index, int branchIndex)
 		p->left = DTNode::Null;
 		p = newNode;
 
+
 	}
 	else {
 		DTNode* nodeLeft = m_listNode[p->left];
@@ -318,7 +346,18 @@ void DynamicTree::InsertNode(DTNode * node, int index, int branchIndex)
 	//Update Height
 	p->height = 1 + std::max(m_listNode[p->left]->height, m_listNode[p->right]->height);
 
+
+	//Update AABB
 	CombineAABB(&p->aabb, m_listNode[p->left]->aabb, m_listNode[p->right]->aabb);
+
+}
+
+
+void DynamicTree::Balance(int index)
+{
+	//Rot Left
+
+	//Rot Right
 }
 
 

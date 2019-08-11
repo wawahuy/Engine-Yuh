@@ -29,48 +29,75 @@ inline Vec2<T>::operator T*()
 	return &x;
 }
 
+//a+=
+template<typename T>
+void operator+=(Vec2<T>& a, const Vec2<T>& b) {
+	a.x += b.x;
+	a.y += b.y;
+}
+
+//a-=
+template<typename T>
+void operator-=(Vec2<T>& a, const Vec2<T>& b) {
+	a.x -= b.x;
+	a.y -= b.y;
+}
+
+//a*=
+template<typename T>
+void operator+=(Vec2<T>& a, const Vec2<T>& b) {
+	a.x *= b.x;
+	a.y *= b.y;
+}
+
+//a/=
+template<typename T>
+void operator/=(Vec2<T>& a, const Vec2<T>& b) {
+	a.x *= b.y;
+	a.y *= b.x;
+}
 
 // a+b
 template<typename T>
-Vec2<T> operator+(Vec2<T> a, Vec2<T> b) {
+Vec2<T> operator+(const Vec2<T>& a, const Vec2<T>& b) {
 	return Vec2<T>(a.x + b.x, a.y + b.y);
 }
 
 // a-b
 template<typename T>
-Vec2<T> operator-(Vec2<T> a, Vec2<T> b) {
+Vec2<T> operator-(const Vec2<T>& a, const Vec2<T>& b) {
 	return Vec2<T>(a.x - b.x, a.y - b.y);
 }
 
 // a*b
 template<typename T>
-T operator*(Vec2<T> a, Vec2<T> b) {
+T operator*(const Vec2<T>& a, const Vec2<T>& b) {
 	return a.x*b.x + a.y*b.y;
 }
 
 // vector*number
 template<typename T>
-Vec2<T> operator*(Vec2<T> a, T b) {
+Vec2<T> operator*(const Vec2<T>& a, T b) {
 	return Vec2<T>(a.x * b, a.y * b);
 }
 
 // number*vector
 template<typename T>
-Vec2<T> operator*(T a, Vec2<T> b) {
+Vec2<T> operator*(T a, const Vec2<T>& b) {
 	return Vec2<T>(a * b.b.x, a * b.y);
 }
 
 
 // a==b
 template<typename T>
-bool operator==(Vec2<T> a, Vec2<T> b) {
+bool operator==(const Vec2<T>& a, const Vec2<T>& b) {
 	return (a.x == b.x) && (a.y == b.y);
 }
 
 
 // a!=b
 template<typename T>
-bool operator!=(Vec2<T> a, Vec2<T> b) {
+bool operator!=(const Vec2<T>& a, const Vec2<T>& b) {
 	return (a.x != b.x) || (a.y != b.y);
 }
 
@@ -79,13 +106,13 @@ bool operator!=(Vec2<T> a, Vec2<T> b) {
 *
 */
 template<typename T>
-float VectorLength(Vec2<T> v) {
+float VectorLength(const Vec2<T>& v) {
 	return sqrt(v.x*v.x + v.y*v.y);
 }
 
 
 template<typename T>
-Vec2f VectorNormalize(Vec2<T> v) {
+Vec2f VectorNormalize(const Vec2<T>& v) {
 	float l = VectorLength(v);
 	return Vec2f(
 		v.x / l,
