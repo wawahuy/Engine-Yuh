@@ -12,4 +12,11 @@ namespace yuh {
 		return a < b ? a : b;
 	}
 
+	template<typename T, typename V>
+	struct Pair
+	{
+		T A;
+		V B;
+	};
+
 }
