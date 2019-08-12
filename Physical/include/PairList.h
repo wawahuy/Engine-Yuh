@@ -7,9 +7,6 @@
 S_NS_PHYSICAL
 ;
 
-struct PSLNodePair;
-
-
 /// Node
 struct PSLNode {
 	/// Giá trị của Node
@@ -21,23 +18,7 @@ struct PSLNode {
 	PSLNode*	parent;
 
 	/// Các node pair nằm bên cây còn lại
-	PSLNodePair* rootPair;
-
-	/// Lá
-	bool IsLeaf() {
-		return left == NULL && right == NULL;
-	}
-};
-
-
-/// Pair
-struct PSLNodePair {
-	PSLNode*	value;
-
-	/// Node lận cận
-	PSLNodePair* left;
-	PSLNodePair* right;
-	PSLNodePair* parent;
+	std::vector<PSLNode*> pair;
 
 	/// Lá
 	bool IsLeaf() {
@@ -51,20 +32,16 @@ struct PSLNodePair {
 ///
 ///		[A Tree]							[B Tree]
 ///
-///			  1  [4, 3]						    4	[1, 2]--------------->     Node Pair Tree
-///			/	\							  /	  \										1
-///	 [4]  2		 4 [7, 8, 9]			[1]  3	   7  [4]								 \
-///												 /	 \									  2
+///			  1  [4, 3]						    4	[1, 2] 
+///			/	\							  /	  \
+///	 [4]  2		 4 [7, 8, 9]			[1]  3	   7  [4]
+///												 /	 \
 ///											[4]	8	  9 [4]
 ///
 ///
-/// Áp dụng AVL (Data struct)
-/// Cấu trúc này bao gồm 2 cây chính, 2 node trong 2 cây tạo thành 1 pair, và không có pair nào giống nhau
-/// Các node chứa cây riêng để quản lý các pair
+/// Áp dụng AVL (Data struct), các khóa trùng lập được lưu giữ lại
+/// Cấu trúc này bao gồm 2 cây, 2 node trong 2 cây tạo thành 1 pair, và không có pair nào giống nhau
 /// Cây này được áp dụng để lưu trữ các cập va chạm trong broadphase
-/// Space	:	2*O(n)
-/// Add		:	2*O(log(n))
-/// Delete	:     O(log(n)) + x
 
 
 class YUH_API_PHYSICAL PairList {
@@ -107,17 +84,10 @@ private:
 	/// Tạo Node
 	PSLNode *CreateNode(int value);
 
-	/// Tạo Pair
-	PSLNodePair *CreateNodePair(PSLNode *node);
-
 	/// Chèn node vào cây
+	/// Không chấp nhận chèn nếu cây còn lại chứa node có giá trị 'removeRefValue'
 	PSLNode *InsertNode(PSLNode *&root, int value);
 
-	/// Chèn pair vào node
-	bool InsertNodePair(PSLNode *&node, PSLNode *nodePair);
-
-	/// Xóa node
-	void RemoveLeaf(PSLNode *node);
 
 	/// Cây A
 	PSLNode *m_rootA;

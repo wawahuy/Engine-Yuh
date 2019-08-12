@@ -32,13 +32,8 @@ PSLNode * PairList::CreateNode(int value)
 	return node;
 }
 
-PSLNodePair * PairList::CreateNodePair(PSLNode * value)
-{
-	PSLNodePair *node = new PSLNodePair();
-	node->value = value;
-	node->left = NULL;
-	node->right = NULL;
-	return node;
+bool Sort(PSLNode *A, PSLNode *B) {
+	return A->value < B->value;
 }
 
 void PairList::Add(int val1, int val2)
@@ -49,25 +44,34 @@ void PairList::Add(int val1, int val2)
 	}
 
 	/// Insert node vào cây
+	bool exist1, exist2;
 	PSLNode *nodeVal1 = InsertNode(m_rootA, val1);
 	PSLNode *nodeVal2 = InsertNode(m_rootB, val2);
 
 	/// Kiểm tra tồn tại pair
-	if (!InsertNodePair(nodeVal1, nodeVal2))
+	std::vector<PSLNode *> &lpair1 = nodeVal1->pair;
+	std::vector<PSLNode *> &lpair2 = nodeVal2->pair;
+
+	/// Khi đã tồn tại pair
+	auto lpend = lpair1.end();
+	if (std::find(lpair1.begin(), lpend, nodeVal2) != lpend)
 		return;
 
-	if (!InsertNodePair(nodeVal2, nodeVal1))
-		return;
+	/// Khởi tạo pair
+	lpair1.push_back(nodeVal2);
+	lpair2.push_back(nodeVal1);
+
+	/// Sort pair
+	std::sort(lpair1.begin(), lpair1.end(), Sort);
+	std::sort(lpair2.begin(), lpair2.end(), Sort);
 }
 
 void PairList::Remove(int val1)
 {
-	/// A Tree
 	PSLNode *node = m_rootA;
 	while (node)
 	{
 		if (node->value == val1) {
-
 			break;
 		}
 		else if (val1 < node->value)
@@ -75,12 +79,8 @@ void PairList::Remove(int val1)
 		else
 			node = node->right;
 	}
-}
 
-void PairList::RemoveLeaf(PSLNode * node)
-{
 }
-
 
 PairList::Iterator PairList::Query()
 {
@@ -126,44 +126,6 @@ PSLNode* PairList::InsertNode(PSLNode *&root, int value)
 	return nodeNew;
 }
 
-bool PairList::InsertNodePair(PSLNode *& nodeRoot, PSLNode * nodePair)
-{
-	if (!nodeRoot->rootPair) {
-		nodeRoot->rootPair = CreateNodePair(nodePair);
-		return true;
-	}
-
-	PSLNodePair **node = &nodeRoot->rootPair;
-	PSLNodePair  *nodeParent = NULL;
-
-	while (*node)
-	{
-		nodeParent = *node;
-
-		/// Trả về node đã tồn tại
-		if ((*node)->value == nodePair) {
-			return false;
-		}
-
-		/// Left
-		else if ((*node)->value->value > nodePair->value) {
-			node = &(*node)->left;
-		}
-		/// Right
-		else {
-			node = &(*node)->right;
-		}
-	}
-
-	/// Tạo Node
-	PSLNodePair* nodeNew = CreateNodePair(nodePair);
-	nodeNew->parent = nodeParent;
-
-	/// Insert Node
-	*node = nodeNew;
-
-	return nodeNew;
-}
 
 
 /// ====================================
