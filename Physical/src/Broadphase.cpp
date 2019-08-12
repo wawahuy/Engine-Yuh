@@ -39,11 +39,17 @@ void Broadphase::Add(ICollider * object)
 	BPNode* node	= CreateNode();
 	node->userdata	= object;
 
+	/// Gán ID node cho userdata
+	object->nodeIndex = node->index;
+
 	/// Tính toán và vỗ béo aabb
 	ComputeAABBObject(node);
 
 	/// Gán node vào danh sách lá
 	m_listLeaf.push_back(node->index);
+
+	/// Thêm vào danh sách xữ lí bộ đệm va chạm
+	m_listMove.push_back(node->index);
 
 	/// Thêm lá vào cây
 	if (m_root == BPNode::Null) {
@@ -115,6 +121,7 @@ void Broadphase::InsertNode(int indexInsert, int indexBranch)
 	/// Khi cây chỉ có 1 Node
 	if (m_root == index) {
 		m_root = indexBranch;
+		nodeBranch->parent = BPNode::Null;
 	}
 	else {
 		BPNode* oldParent = m_listNode[node->parent];
@@ -138,13 +145,19 @@ void Broadphase::InsertNode(int indexInsert, int indexBranch)
 	nodeInsert->parent = indexBranch;
 
 
-	/// Tính lại chiều cao, và AABB trên nhánh
-	index = nodeBranch->index;
+	///// Tính lại chiều cao, và AABB trên nhánh
+	RebuildBottomUp(nodeBranch->index);
+}
+
+void Broadphase::RebuildBottomUp(int index)
+{
+	BPNode *node, *left, *right;
+
 	while (index != BPNode::Null)
 	{
-		node  = m_listNode[index];
-		BPNode *left  = m_listNode[node->left];
-		BPNode *right = m_listNode[node->right];
+		node	= m_listNode[index];
+		left	= m_listNode[node->left];
+		right	= m_listNode[node->right];
 
 		/// Height
 		node->height = 1 + yuh::max(left->height, right->height);
@@ -155,11 +168,11 @@ void Broadphase::InsertNode(int indexInsert, int indexBranch)
 		/// Next
 		index = node->parent;
 	}
-
 }
 
 void Broadphase::Balance(int iA)
 {
+
 }
 
 void Broadphase::Remove(ICollider * object)
@@ -168,112 +181,127 @@ void Broadphase::Remove(ICollider * object)
 
 void Broadphase::Update()
 {
-	if (m_root) {
-		BPNode* nodeRoot = m_listNode[m_root];
+	if (!m_root) return;
+	BPNode* nodeRoot = m_listNode[m_root];
 
-		/// Khi chỉ có 1 node
-		if (nodeRoot->IsLeaf()) {
-			nodeRoot->aabb = nodeRoot->userdata->getAABB();
+	/// Khi chỉ có 1 node
+	if (nodeRoot->IsLeaf()) {
+		nodeRoot->aabb = nodeRoot->userdata->getAABB();
+	}
+	else {
+
+		/// Danh sách các node 'lá' thay đổi
+		m_listReinsert.clear();
+
+		for (int nodeIndex : m_listLeaf) {
+			BPNode* node = m_listNode[nodeIndex];
+
+			/// Khểm tra object aabb có nằm trong node không
+			if (!node->aabb.Contains(node->userdata->getAABB())) {
+				m_listReinsert.push_back(nodeIndex);
+			}
+		}
+
+		/// Cập nhật lại các AABB
+		for (int nodeIndex : m_listReinsert) {
+			BPNode* node = m_listNode[nodeIndex];
+			BPNode* nodeParent = m_listNode[node->parent];
+			BPNode* nodeSibling = m_listNode[nodeParent->left == node->index ? nodeParent->right : nodeParent->left];
+
+			/// Khi node cha là node lá của root
+			if (nodeParent->parent == BPNode::Null) {
+				m_root = nodeSibling->index;
+				nodeSibling->parent = BPNode::Null;
+			}
+			else {
+				BPNode* nodeParent2 = m_listNode[nodeParent->parent];
+				nodeSibling->parent = nodeParent2->index;
+
+				if (nodeParent2->left == nodeParent->index)
+					nodeParent2->left = nodeSibling->index;
+				else
+					nodeParent2->right = nodeSibling->index;
+			}
+
+			/// Reinsert
+			node->height = 0;
+			ComputeAABBObject(node);
+			InsertNode(node->index, nodeParent->index);
+
+			/// Thêm vào danh sách node cập nhật
+			m_listMove.push_back(node->index);
+
+			/// Update height
+			RebuildBottomUp(nodeSibling->parent);
+
+			/// Xóa các bộ đệm va chạm
+			ClearPairCacheOnNode(node->index);
+		}
+	}
+
+
+}
+
+void Broadphase::ClearPairCacheOnNode(int index)
+{
+	int size = m_listCachePair.size();
+	std::vector<IndexPair>::iterator begin = m_listCachePair.begin();
+
+	/// Tìm kiếm và xóa trên A
+	/// Binary search
+	int left  = 0;
+	int right = size - 1;
+	int ret   = -1;
+	while (left <= right) {
+		int mid   = (left + right) / 2;
+		int value = m_listCachePair[mid].A;
+		if (index == value) {
+			ret = mid;
+			break;
+		}
+		else if (index < value)
+			right = mid - 1;
+		else if (index > value)
+			left = mid + 1;
+	}
+
+	if (ret != -1) {
+		/// Xác định vùng xóa
+		left  = ret;
+		right = ret;
+		while (left-- && m_listCachePair[left].A == index);
+		while (++right < size && m_listCachePair[right].A == index);
+
+		/// Xóa
+		m_listCachePair.erase(begin + left + 1, begin + right);
+
+		/// Cập nhật chỉ số
+		size = m_listCachePair.size();
+	}
+
+	/// Tìm kiếm và xóa trên B
+	/// Linear search
+	/// Tấc cả node có A < index
+	int i = 0;
+	while (i < size)
+	{
+		const IndexPair &p1 = m_listCachePair[i];
+
+		if (p1.A > index)
+			break;
+
+		if (p1.B == index) {
+			m_listCachePair.erase(m_listCachePair.begin() + i);
+			size = m_listCachePair.size();
 		}
 		else {
-
-			/// Danh sách các node 'lá' thay đổi
-			std::vector<BPNode*> listNodeUpdate;
-
-			for (int nodeIndex : m_listLeaf) {
-				BPNode* node = m_listNode[nodeIndex];
-				
-				/// Khểm tra object aabb có nằm trong node không
-				if (!node->aabb.Contains(node->userdata->getAABB())) {
-					listNodeUpdate.push_back(node);
-				}
-			}
-
-			/// Cập nhật lại các AABB
-			for (BPNode* node : listNodeUpdate) {
-				BPNode* nodeParent = m_listNode[node->parent];
-				BPNode* nodeSibling = m_listNode[nodeParent->left == node->index ? nodeParent->right : nodeParent->left];
-
-				/// Khi chí có 2 lá
-				if (nodeParent->parent == BPNode::Null) {
-					m_root = nodeSibling->index;
-				}
-				else {
-					BPNode* nodeParent2 = m_listNode[nodeParent->parent];
-					nodeSibling->parent = nodeParent2->index;
-
-					if (nodeParent2->left == nodeParent->index)
-						nodeParent2->left = nodeSibling->index;
-					else
-						nodeParent2->right = nodeSibling->index;
-				}
-
-				/// Reinsert
-				node->height = 0;
-				ComputeAABBObject(node);
-				InsertNode(node->index, nodeParent->index);
-
-				/// Thêm vào danh sách node cập nhật
-				m_listMove.push_back(node->index);
-
-
-				/// Update height
-				if (nodeSibling->parent != BPNode::Null) {
-
-					int nodeIndex = nodeSibling->parent;
-					while (nodeIndex != BPNode::Null)
-					{
-						BPNode *node  = m_listNode[nodeIndex];;
-						BPNode *left  = m_listNode[node->left];
-						BPNode *right = m_listNode[node->right];
-
-						/// Height
-						node->height = 1 + yuh::max(left->height, right->height);
-
-						/// AABB
-						node->aabb = left->aabb.Combine(right->aabb);
-
-						/// Next
-						nodeIndex = node->parent;
-					}
-				}
-
-
-				/// Xóa các bộ đệm va chạm
-				int i = 0;
-				int size = m_listCachePair.size();
-
-				while (i < size) {
-
-					const IndexPair &p1 = m_listCachePair[i];
-					if (p1.A == node->index || p1.B == node->index) {
-						
-						int j = i;
-						while (++j < size) {
-							const IndexPair &p2 = m_listCachePair[j];
-							if (p2.A != node->index && p2.B != node->index)
-								break;
-						}
-
-						auto &begin = m_listCachePair.begin();
-						m_listCachePair.erase(begin + i, begin + j);
-						size = m_listCachePair.size();
-
-						/// Mảng có A < B và được sắp xếp, nên nếu nodeIndex == A thì nó đã được xóa hết
-						if (node->index == p1.A) {
-							break;
-						}
-					}
-					else
-						i++;
-				}
-
-			}
+			++i;
 		}
 	}
 }
 
-void Broadphase::Query(int queryID, const AABB & aabb)
+
+void Broadphase::QueryPair(int queryID, const AABB & aabb)
 {
 	int stack[256];
 	int cstack = 0;
@@ -284,7 +312,11 @@ void Broadphase::Query(int queryID, const AABB & aabb)
 		BPNode* node = m_listNode[stack[--cstack]];
 		if (aabb.Overlap(node->aabb)) {
 			if (node->IsLeaf()) {
+
+				/// Pair cùng một đối tượng
 				if (queryID == node->index) continue;
+
+				/// Thêm vào danh sách va chạm
 				m_listCachePair.push_back(IndexPair{
 					yuh::min(queryID, node->index),
 					yuh::max(queryID, node->index)
@@ -316,15 +348,18 @@ bool PairLessThan(const IndexPair& A, const IndexPair& B)
 
 void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 {
-	int hasUpdate = m_listCachePair.size();
+	int sizePair = m_listCachePair.size();
+
+	/// Truy vấn va chạm
 	for (int i : m_listMove) {
-		Query(i, m_listNode[i]->aabb);
+		QueryPair(i, m_listNode[i]->aabb);
 	}
 
-	if (hasUpdate != m_listCachePair.size())
+	/// Sắp xếp va chạm
+	if(sizePair != m_listCachePair.size())
 		std::sort(m_listCachePair.begin(), m_listCachePair.end(), PairLessThan);
 
-	//add pair
+	/// Add pair
 	int i = 0;
 	int size = m_listCachePair.size();
 	while (i < size) {
@@ -376,7 +411,23 @@ int Broadphase::GetHeight()
 
 int Broadphase::GetBalanceMax()
 {
-	return 0;
+	int balanceMax = 0;
+	int stack[256];
+	int cstack = 0;
+	stack[cstack++] = m_root;
+
+	while (cstack) {
+		BPNode *node = m_listNode[stack[--cstack]];
+		if (!node->IsLeaf()) {
+			int balance = m_listNode[node->left]->height - m_listNode[node->right]->height;
+			if (abs(balance) > abs(balanceMax))
+				balanceMax = balance;
+			stack[cstack++] = node->left;
+			stack[cstack++] = node->right;
+		}
+	}
+
+	return balanceMax;
 }
 
 int Broadphase::GetNumMoveObject()
@@ -387,6 +438,11 @@ int Broadphase::GetNumMoveObject()
 int Broadphase::GetNumNode()
 {
 	return m_listNode.size();
+}
+
+int Broadphase::GetNumPairCache()
+{
+	return m_listCachePair.size();
 }
 
 
