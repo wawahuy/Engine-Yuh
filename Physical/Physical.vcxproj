@@ -114,6 +114,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\PairList.h" />
     <ClInclude Include="include\AABB.h" />
     <ClInclude Include="include\Broadphase.h" />
     <ClInclude Include="include\Export.h" />
@@ -121,6 +122,7 @@
   <ItemGroup>
     <ClCompile Include="src\Broadphase.cpp" />
     <ClCompile Include="src\AABB.cpp" />
+    <ClCompile Include="src\PairList.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

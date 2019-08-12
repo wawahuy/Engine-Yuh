@@ -11,19 +11,22 @@
 
 
 #include "Export.h"
+#include <YMath.h>
 #include <Vector3D.h>
 
 S_NS_PHYSICAL
 
-struct AABB {
+class YUH_API_PHYSICAL AABB {
+public:
 	Vec2f min;
 	Vec2f max;
+
+	AABB  Combine(const AABB& aabb);
+	bool  Overlap(const AABB& aabb) const;
+	bool  Contains(const AABB& aabb) const;
+	float Area();
 };
 
-bool YUH_API_PHYSICAL OverlapAABBAABB(const AABB& aabb1, const AABB& aabb2); 
-bool YUH_API_PHYSICAL ContainsAABBAABB(const AABB& aabb1, const AABB& aabb2);
-void YUH_API_PHYSICAL CombineAABB(AABB* aabb, const AABB& aabb1, const AABB& aabb2);
-float YUH_API_PHYSICAL AreaAABB(const AABB& aabb);
 
 E_NS
 

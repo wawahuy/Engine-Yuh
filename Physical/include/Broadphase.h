@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "AABB.h"
+#include "PairList.h"
 #include <vector>
 #include <algorithm>
 
@@ -88,12 +89,18 @@ public:
 	/// Phương pháp cập nhật này bắc buộc phải đi qua tấc cả các bodies để xem nó có vượt khỏi Zone
 	void Update();
 
+
 	/// Truy vấn và lấy AABB thuộc các Node, bao gồm lá và cả nhánh
 	void QueryAllAABB(const AABB& aabb, std::vector<AABB *>& outListAABB, std::vector<ICollider *>& outListCollide);
+	
+
+	/// Truy vấn các lá va chạm AABB
+	void Query(const AABB& aabb, std::vector<ICollider *>& outListCollide);
 
 
 	/// Tính toán, cập nhật các đối tượng va chạm
 	void ComputePair(std::vector<IColliderPair>& outListColliderPair);
+
 
 	/// Get
 	int GetHeight();

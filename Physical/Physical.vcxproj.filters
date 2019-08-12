@@ -24,12 +24,18 @@
     <ClInclude Include="include\Broadphase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\PairList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Broadphase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PairList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
