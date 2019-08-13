@@ -172,6 +172,34 @@ bool PairList::FindNode(PSLNode **root, PSLNode **&node, int value)
 	return false;
 }
 
+bool PairList::FindNodePair(PSLNodePair ** root, PSLNodePair **& node, PSLNode * value)
+{
+	node = root;
+	PSLNodePair *cur = *node;
+
+	while (cur) {
+
+		/// Khi node chứa value
+		if (cur->value == value) {
+			return true;
+		}
+
+		/// Left
+		if (value < cur->value) {
+			node = &cur->left;
+		}
+
+		/// Right
+		else {
+			node = &cur->right;
+		}
+
+		/// Value
+		cur = *node;
+	}
+	return false;
+}
+
 void PairList::Remove(int value)
 {
 	RemoveNodeAndPair(&m_rootA, value);
@@ -180,18 +208,58 @@ void PairList::Remove(int value)
 
 void PairList::RemoveNodeAndPair(PSLNode **root, int value)
 {
-	PSLNode **node = NULL;
+	PSLNode **nodeA = NULL;
+	PSLNode **rootB = *root == m_rootA ? &m_rootB : &m_rootA;
+
 
 	/// A Tree
 	/// Tìm kiếm node có giá trị value
-	if (!FindNode(root, node, value)) return;
+	if (!FindNode(root, nodeA, value)) return;
 
 	/// Xóa các node pair
 	/// Việc này sẽ xóa các node trên B Tree
+	int cstack = 0;
+	PSLNodePair* stack[256];
+	stack[cstack++] = (*nodeA)->rootPair;
+
+	while (cstack)
+	{
+		PSLNodePair *pairOnA = stack[--cstack];
+
+		if (pairOnA) {
+
+			/// Thêm vào stack
+			stack[cstack++] = pairOnA->left;
+			stack[cstack++] = pairOnA->right;
+
+			/// Node trên B
+			PSLNode *nodeB = pairOnA->value;
+
+			/// Thực hiện tìm Pair trên B
+			PSLNodePair **pairOnB;
+			FindNodePair(&nodeB->rootPair, pairOnB, *nodeA);
+			RemoveNodePair(&nodeB->rootPair, pairOnB);
+
+			/// Thực hiện xóa node trên B nếu rỗng Pair
+			if (!nodeB->rootPair) {
+				PSLNode *prB = nodeB->parent;
+				if (prB) {
+					PSLNode **ndR = prB->left == nodeB ? &prB->left : &prB->right;
+					RemoveNode(rootB, ndR);
+				}
+				else {
+					RemoveNode(rootB, &nodeB);
+				}
+			}
+
+			/// Xóa pair trên A
+			delete pairOnA;
+		}
+	}
 
 
 	/// Xóa node có giá trị value
-	RemoveNode(root, node);
+	RemoveNode(root, nodeA);
 }
 
 void PairList::RemoveNode(PSLNode **root, PSLNode **node)
@@ -223,37 +291,23 @@ void PairList::RemoveNode(PSLNode **root, PSLNode **node)
 			(*node)->left = vNode->left;
 			vNode->left->parent = *node;
 		}
-		else if (!nodeRightLeft->left) {
-			PSLNode *temp = nodeRightLeft->right;
-
-			/// Chuyển node phải trái lên đổi chô nút xóa
-			*node = nodeRightLeft;
-			(*node)->left = vNode->left;
-			(*node)->right = vNode->right;
-			vNode->left->parent = *node;
-			vNode->right->parent = *node;
-
-			nodeRight->left = temp;
-
-			if (temp) {
-				/// CHuyển node phải trái phải lên đổi nút di chuyên
-				temp->parent = nodeRight;
-			}
-		}
 		else {
 			/// Địa chỉ con trỏ giữ node bên trái của node bên phải node cần xóa
 			PSLNode **temp = &nodeRight->left;
 
 			/// Tìm địa chỉ của con trỏ giữ node bên phải xâu nhất
-			while ((*temp)->right != NULL) {
-				temp = &((*temp)->right);
+			while ((*temp)->left != NULL) {
+				temp = &((*temp)->left);
 			}
 
 			/// Node cần swap
 			*node = *temp;
 			
 			/// Xóa liên kết với temp với parent
-			*temp = NULL;
+			*temp = (*node)->left;
+			if (*temp) {
+				(*temp)->parent = (*node)->parent;
+			}
 
 			/// Gán left, right
 			(*node)->left = vNode->left;
@@ -269,8 +323,70 @@ void PairList::RemoveNode(PSLNode **root, PSLNode **node)
 	}
 
 	delete vNode;
-} 
+}
 
+void PairList::RemoveNodePair(PSLNodePair ** m_root, PSLNodePair ** node)
+{
+	PSLNodePair *vNode = *node;
+	PSLNodePair *parent = vNode->parent;
+
+	/// Không có lá phải
+	if (vNode->right == NULL) {
+		/// Con trái
+		*node = vNode->left;
+	}
+
+	/// Không có lá trái
+	else if (vNode->left == NULL) {
+		/// Con phải
+		*node = vNode->right;
+	}
+
+	/// Có 2 lá
+	else {
+		/// Node bên phải của node cần xóa
+		PSLNodePair *nodeRight = vNode->right;
+		PSLNodePair *nodeRightLeft = nodeRight->left;
+
+		/// Nếu node bên Trái của node bên phải của node cần xóa là NULL => Dồn Node phải lên
+		if (!nodeRightLeft) {
+			*node = nodeRight;
+			(*node)->left = vNode->left;
+			vNode->left->parent = *node;
+		}
+		else {
+			/// Địa chỉ con trỏ giữ node bên trái của node bên phải node cần xóa
+			PSLNodePair **temp = &nodeRight->left;
+
+			/// Tìm địa chỉ của con trỏ giữ node bên phải xâu nhất
+			while ((*temp)->left != NULL) {
+				temp = &((*temp)->left);
+			}
+
+			/// Node cần swap
+			*node = *temp;
+
+			/// Xóa liên kết với temp với parent
+			*temp = (*node)->left;
+			if (*temp) {
+				(*temp)->parent = (*node)->parent;
+			}
+
+			/// Gán left, right
+			(*node)->left = vNode->left;
+			(*node)->right = vNode->right;
+			vNode->left->parent = *node;
+			vNode->right->parent = *node;
+		}
+	}
+
+	/// Gán cha
+	if (*node) {
+		(*node)->parent = parent;
+	}
+
+	delete vNode;
+}
 
 
 /// ====================================

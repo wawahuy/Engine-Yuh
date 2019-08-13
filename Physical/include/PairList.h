@@ -142,12 +142,12 @@ private:
 	bool InsertNodePair(PSLNode *&node, PSLNode *nodePair);
 
 	/// Tìm node trên cây
-	/// Node 'p' output là con trỏ giữ node 'q'
-	/// Node 'q' output là node có giá trị 'value' cần tìm
 	bool FindNode(PSLNode **root, PSLNode **&node, int value);
+	bool FindNodePair(PSLNodePair **root, PSLNodePair **&node, PSLNode* value);
 
 	/// Xóa node trên cây
 	void RemoveNode(PSLNode **m_root, PSLNode **node);
+	void RemoveNodePair(PSLNodePair **m_root, PSLNodePair **node);
 
 	/// Xóa node có giá trị value, bao gồm xóa pair và node trên cây tương ứng
 	void RemoveNodeAndPair(PSLNode **root, int value);
