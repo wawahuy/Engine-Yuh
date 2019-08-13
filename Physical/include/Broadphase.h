@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "AABB.h"
-#include "PairList.h"
 #include <vector>
 #include <algorithm>
+#include "PairList.h"
 
 #define MARGIN_PX_AABB 1
 #define MARGIN_FACTOR_VELOCITY_AABB 2.0f
@@ -11,6 +11,8 @@ S_NS_PHYSICAL
 ;
 
 struct BPNode;
+
+typedef Pair<int, int> IndexPair;
 
 
 /// Interface
@@ -31,8 +33,6 @@ private:
 
 
 
-
-typedef Pair<int, int>					IndexPair;
 typedef Pair<ICollider *, ICollider *>	IColliderPair;
 
 
@@ -132,10 +132,12 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-	std::vector<IndexPair>	m_listCachePair;
+	/// std::vector<IndexPair>	m_listCachePair;
+	PairList				m_listCachePair;
 
 	/// Danh sách node
 	std::vector<BPNode *>	m_listNode;
+
 };
 
 E_NS

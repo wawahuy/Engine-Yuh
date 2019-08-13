@@ -3,7 +3,6 @@
 #include "YMath.h"
 #include <vector>
 #include <algorithm>
-#include <iostream>
 
 S_NS_PHYSICAL
 ;
@@ -28,11 +27,6 @@ struct PSLNode {
 	bool IsLeaf() {
 		return left == NULL && right == NULL;
 	}
-
-	/// Nhánh có 2 con
-	bool HasTwoChild() {
-		return left != NULL && right != NULL;
-	}
 };
 
 
@@ -49,12 +43,6 @@ struct PSLNodePair {
 	bool IsLeaf() {
 		return left == NULL && right == NULL;
 	}
-
-
-	/// Nhánh có 2 con
-	bool HasTwoChild() {
-		return left != NULL && right != NULL;
-	}
 };
 
 
@@ -64,9 +52,9 @@ struct PSLNodePair {
 ///		[A Tree]							[B Tree]
 ///
 ///			  1  [4, 3]						    4	[1, 2]--------------->     Node Pair Tree
-///			/	\							  /	  \										[node Pair]  A-Tree Node [value =  1]
-///	 [4]  2		 4 [7, 8, 9]			[1]  3	   7  [4]								      \
-///												 /	 \									        [node Pair] A-Tree Node [value = 2]
+///			/	\							  /	  \										1
+///	 [4]  2		 4 [7, 8, 9]			[1]  3	   7  [4]								 \
+///												 /	 \									  2
 ///											[4]	8	  9 [4]
 ///
 ///
@@ -89,8 +77,8 @@ public:
 	void Add(int val1, int val2);
 
 	/// Xóa các cặp phận tử 
-	/// Bao gồm xóa các Node có giá trị value nằm trên cả 2 cây
-	void Remove(int value);
+	/// Bao gồm xóa các Node nằm trên cả 2 cây
+	void Remove(int val1);
 
 	/// Class Duyệt cây
 	class Iterator {
@@ -115,19 +103,6 @@ public:
 	/// RootB
 	PSLNode *GetRootB();
 
-	/// Test
-	void traverse_binary_tree(PSLNode* n)
-	{
-		if (n == NULL)     //Cay rong
-			return;
-		else
-		{
-			traverse_binary_tree(n->left);					//Duyet cay con trai theo thu tu giua
-			std::cout << n->value << "\t";                  //Tham nut
-			traverse_binary_tree(n->right);					//Duyet cay con phai theo thu tu giua
-		}
-	}
-
 private:
 	/// Tạo Node
 	PSLNode *CreateNode(int value);
@@ -141,16 +116,8 @@ private:
 	/// Chèn pair vào node
 	bool InsertNodePair(PSLNode *&node, PSLNode *nodePair);
 
-	/// Tìm node trên cây
-	/// Node 'p' output là con trỏ giữ node 'q'
-	/// Node 'q' output là node có giá trị 'value' cần tìm
-	bool FindNode(PSLNode **root, PSLNode **&node, int value);
-
-	/// Xóa node trên cây
-	void RemoveNode(PSLNode **m_root, PSLNode **node);
-
-	/// Xóa node có giá trị value, bao gồm xóa pair và node trên cây tương ứng
-	void RemoveNodeAndPair(PSLNode **root, int value);
+	/// Xóa node
+	void RemoveLeaf(PSLNode *node);
 
 	/// Cây A
 	PSLNode *m_rootA;

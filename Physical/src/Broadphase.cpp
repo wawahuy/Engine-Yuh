@@ -255,7 +255,7 @@ void Broadphase::Update()
 
 void Broadphase::ClearPairCacheOnNode(int index)
 {
-	int size = m_listCachePair.size();
+	/*int size = m_listCachePair.size();
 	std::vector<IndexPair>::iterator begin = m_listCachePair.begin();
 
 	/// Tìm kiếm và xóa trên A
@@ -308,8 +308,9 @@ void Broadphase::ClearPairCacheOnNode(int index)
 		else {
 			++i;
 		}
-	}
+	}*/
 }
+
 
 
 void Broadphase::QueryPair(int queryID, const AABB & aabb)
@@ -328,10 +329,12 @@ void Broadphase::QueryPair(int queryID, const AABB & aabb)
 				if (queryID == node->index) continue;
 
 				/// Thêm vào danh sách va chạm
-				m_listCachePair.push_back(IndexPair{
-					yuh::min(queryID, node->index),
-					yuh::max(queryID, node->index)
-				});
+				//m_listCachePair.push_back(IndexPair{
+				//	yuh::min(queryID, node->index),
+				//	yuh::max(queryID, node->index)
+				//});
+
+				m_listCachePair.Add(queryID, node->index);
 			}
 			else {
 				stack[cstack++] = node->left;
@@ -359,7 +362,7 @@ bool PairLessThan(const IndexPair& A, const IndexPair& B)
 
 void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 {
-	int sizePair = m_listCachePair.size();
+	//int sizePair = m_listCachePair.size();
 
 	/// Truy vấn va chạm
 	for (int i : m_listMove) {
@@ -367,28 +370,29 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 	}
 
 	/// Sắp xếp va chạm
-	if(sizePair != m_listCachePair.size())
-		std::sort(m_listCachePair.begin(), m_listCachePair.end(), PairLessThan);
+	/*if(sizePair != m_listCachePair.size())
+		std::sort(m_listCachePair.begin(), m_listCachePair.end(), PairLessThan);*/
+
 
 	/// Add pair
-	int i = 0;
-	int size = m_listCachePair.size();
-	while (i < size) {
-		const IndexPair &p1 = m_listCachePair[i];
-		outListColliderPair.push_back({
-			m_listNode[p1.A]->userdata,
-			m_listNode[p1.B]->userdata
-		});
+	//int i = 0;
+	//int size = m_listCachePair.size();
+	//while (i < size) {
+	//	const IndexPair &p1 = m_listCachePair[i];
+	//	outListColliderPair.push_back({
+	//		m_listNode[p1.A]->userdata,
+	//		m_listNode[p1.B]->userdata
+	//	});
 
-		++i;
-		while (i < size) {
-			const IndexPair &p2 = m_listCachePair[i];
-			if (p1.A != p2.A || p1.B != p2.B)
-				break;
-			m_listCachePair.erase(m_listCachePair.begin() + i);
-			size = m_listCachePair.size();
-		}
-	}
+	//	++i;
+	//	while (i < size) {
+	//		const IndexPair &p2 = m_listCachePair[i];
+	//		if (p1.A != p2.A || p1.B != p2.B)
+	//			break;
+	//		m_listCachePair.erase(m_listCachePair.begin() + i);
+	//		size = m_listCachePair.size();
+	//	}
+	//}
 
 	m_listMove.clear();
 }
@@ -476,7 +480,7 @@ int Broadphase::GetNumNode()
 
 int Broadphase::GetNumPairCache()
 {
-	return m_listCachePair.size();
+	return 0;
 }
 
 
