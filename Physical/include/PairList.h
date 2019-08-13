@@ -143,11 +143,11 @@ private:
 
 	/// Tìm node trên cây
 	bool FindNode(PSLNode **root, PSLNode **&node, int value);
-	bool FindNodePair(PSLNodePair **root, PSLNodePair **&node, PSLNode* value);
+	bool FindNodePair(PSLNodePair **root, PSLNodePair **&node, int value);
 
 	/// Xóa node trên cây
-	void RemoveNode(PSLNode **m_root, PSLNode **node);
-	void RemoveNodePair(PSLNodePair **m_root, PSLNodePair **node);
+	void RemoveNode(PSLNode **node);
+	void RemoveNodePair(PSLNodePair **node);
 
 	/// Xóa node có giá trị value, bao gồm xóa pair và node trên cây tương ứng
 	void RemoveNodeAndPair(PSLNode **root, int value);

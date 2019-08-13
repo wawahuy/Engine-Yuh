@@ -116,7 +116,6 @@ private:
 	void	 Balance(int iA);
 	void	 ComputeAABBObject(BPNode *node);
 	void	 RebuildBottomUp(int index);
-	void	 ClearPairCacheOnNode(int index);
 
 	/// Node gốc
 	int						m_root;
@@ -132,7 +131,6 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-	/// std::vector<IndexPair>	m_listCachePair;
 	PairList				m_listCachePair;
 
 	/// Danh sách node
