@@ -3,6 +3,7 @@
 
 namespace yuh {
 
+	/// Node AVL Tree
 	template<class T> struct AVLNode {
 		T   data;
 		AVLNode<T>* left;
@@ -19,6 +20,11 @@ namespace yuh {
 		return a < b;
 	}
 
+
+	/// Cây AVL
+	/// Tham sô mẫu T : Kiểu dữ liệu chứa trong mỗi Node
+	/// Tham số mẫu PredEqual : Hàm so sánh bằng hai dữ liệu
+	/// Tham số mẫu PredMin : Hàm so sánh A và B với điều kiện A < B
 	template<
 		class T,
 		bool (*PredEqual)(const T&, const T&) = AVLNodePredEqual<T>,
@@ -47,6 +53,9 @@ namespace yuh {
 		AVLNode<T>*		GetRoot();
 
 	private:
+		/// Balance
+		/// ----------- Đang xây dựng ---------------
+
 		/// Tạo node
 		AVLNode<T>* CreateNode(const T& data);
 
@@ -78,7 +87,7 @@ namespace yuh {
 		}
 
 		AVLNode<T> **node = &m_root;
-		AVLNode<T>  *nodeParent = NULL;
+		AVLNode<T>  *nodeParent = NodeNull;
 
 		while (*node)
 		{
@@ -156,13 +165,13 @@ namespace yuh {
 		AVLNode<T> *parent = vNode->parent;
 
 		/// Không có lá phải
-		if (vNode->right == NULL) {
+		if (vNode->right == NodeNull) {
 			/// Con trái
 			*node = vNode->left;
 		}
 
 		/// Không có lá trái
-		else if (vNode->left == NULL) {
+		else if (vNode->left == NodeNull) {
 			/// Con phải
 			*node = vNode->right;
 		}
@@ -230,6 +239,5 @@ namespace yuh {
 		node->height = 0;
 		return node;
 	}
-
 
 }

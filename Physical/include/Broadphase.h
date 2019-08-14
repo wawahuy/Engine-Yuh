@@ -3,13 +3,15 @@
 #include <vector>
 #include <algorithm>
 #include "PairList.h"
+#include "PairTree.h"
 
 #define MARGIN_PX_AABB 1
 #define MARGIN_FACTOR_VELOCITY_AABB 2.0f
+#define DEBUG_PAIR_TREE
+#define DEBUG_PAIR_LIST
 
 S_NS_PHYSICAL
 ;
-
 struct BPNode;
 
 typedef Pair<int, int> IndexPair;
@@ -131,7 +133,12 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-	PairList				m_listCachePair;
+#ifdef DEBUG_PAIR_TREE
+	PairTree				m_listCachePair;
+#endif
+#ifdef DEBUG_PAIR_LIST
+	PairList				m_listCachePairB;
+#endif
 
 	/// Danh sách node
 	std::vector<BPNode *>	m_listNode;
