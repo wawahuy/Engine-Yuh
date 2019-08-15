@@ -8,14 +8,6 @@ S_NS_PHYSICAL
 
 struct PTNode;
 
-/// So sánh trên AVLNode<PTNode>
-bool PTNode_PredEqual(const PTNode& a, const PTNode& b);
-bool PTNode_PredMin(const PTNode& a, const PTNode& b);
-
-/// So sánh trên AVLNode<AVLNode<AVLNode>>
-bool AVL_PTNode_PredEqual(AVLNode<PTNode>* const &a, AVLNode<PTNode>* const &b);
-bool AVL_PTNode_PredMin(AVLNode<PTNode>* const &a, AVLNode<PTNode>* const &b);
-
 
 /// Node Pair Tree
 struct PTNode {
@@ -23,19 +15,36 @@ struct PTNode {
 	int value;
 
 	/// Danh sách các mối liện kết đến phần tử khác
-	AVLTree<AVLNode<PTNode>*, AVL_PTNode_PredEqual, AVL_PTNode_PredMin> pair;
+	AVLTree<AVLNode<PTNode>*> pair;
 };
 
+inline bool operator==(const PTNode& a, const PTNode& b) {
+	return a.value == b.value;
+}
+
+inline bool operator<(const PTNode& a, const PTNode& b) {
+	return a.value < b.value;
+}
+
+inline bool operator==(AVLNode<AVLNode<PTNode>*> const &a, AVLNode<AVLNode<PTNode>*> const &b) {
+	return a.data->data.value == b.data->data.value;
+}
+
+inline bool operator<(AVLNode<AVLNode<PTNode>*> const &a, AVLNode<AVLNode<PTNode>*> const &b) {
+	return a.data->data.value < b.data->data.value;
+}
 
 
 /// Pair Tree
 /// Chứa các cặp giá trị
 class YUH_API_PHYSICAL PairTree {
-	typedef AVLTree<PTNode, PTNode_PredEqual, PTNode_PredMin> Tree;
+	typedef AVLTree<PTNode> Tree;
 
 public:
 	void Add(int value1, int value2);
 	void Remove(int value);
+
+	int GetBalanceMax();
 
 	///Test Query
 	AVLNode<PTNode>* GetRoot();

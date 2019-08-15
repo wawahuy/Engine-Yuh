@@ -457,5 +457,10 @@ int Broadphase::GetNumPairCache()
 	return 0;
 }
 
+PairTree & Broadphase::GetPairCacheTree()
+{
+	return m_listCachePair;
+}
+
 
 E_NS

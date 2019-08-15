@@ -110,6 +110,7 @@ public:
 	int GetNumMoveObject();
 	int GetNumNode();
 	int GetNumPairCache();
+	PairTree &GetPairCacheTree();
 
 private:
 	BPNode*	 CreateNode();

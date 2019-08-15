@@ -3,26 +3,6 @@
 S_NS_PHYSICAL
 ;
 
-bool PTNode_PredEqual(const PTNode & a, const PTNode & b)
-{
-	return a.value == b.value;
-}
-
-bool PTNode_PredMin(const PTNode & a, const PTNode & b)
-{
-	return a.value < b.value;
-}
-
-bool AVL_PTNode_PredEqual(AVLNode<PTNode>* const & a, AVLNode<PTNode>* const & b)
-{
-	return a->data.value == b->data.value;
-}
-
-bool AVL_PTNode_PredMin(AVLNode<PTNode>* const & a, AVLNode<PTNode>* const & b)
-{
-	return a->data.value < b->data.value;
-}
-
 
 
 /// ===========================================================
@@ -53,6 +33,11 @@ void PairTree::Remove(int value)
 	RemoveOnTree(treeB, treeA, value);
 }
 
+int PairTree::GetBalanceMax()
+{
+	return yuh::max(treeA.GetBalanceMax(), treeB.GetBalanceMax());
+}
+
 AVLNode<PTNode>* PairTree::GetRoot()
 {
 	return treeA.GetRoot();
@@ -81,8 +66,16 @@ void PairTree::RemoveOnTree(Tree & tA, Tree &tB, int value)
 			stack[cstack++] = node->right;
 			
 			auto &treePair = node->data->data.pair;
+
+			/// Xóa node trên cây Pair ở Node thuộc B
 			treePair.RemoveValue(*nodeA);
 			
+			/// Xóa node trên cây B
+			/// Nếu nó không chứa cặp pair nào khác
+			if (treePair.GetRoot() == NodeNull) {
+				tB.RemoveNodeC(node->data);
+			}
+
 			delete node;
 		}
 	}
