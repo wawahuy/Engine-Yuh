@@ -247,7 +247,7 @@ void Broadphase::Update()
 
 			/// Xóa các bộ đệm va chạm
 #ifdef DEBUG_PAIR_TREE
-			m_listCachePair.Remove(node->index);
+			///m_listCachePair.Remove(node->index);
 #endif
 #ifdef DEBUG_PAIR_LIST
 			m_listCachePairB.Remove(node->index);

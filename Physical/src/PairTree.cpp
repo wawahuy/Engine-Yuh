@@ -33,10 +33,17 @@ void PairTree::Remove(int value)
 	RemoveOnTree(treeB, treeA, value);
 }
 
-int PairTree::GetBalanceMax()
+PairTree::Tree & PairTree::GetTreeA()
 {
-	return yuh::max(treeA.GetBalanceMax(), treeB.GetBalanceMax());
+	return treeA;
 }
+
+PairTree::Tree & PairTree::GetTreeB()
+{
+	return treeB;
+}
+
+
 
 AVLNode<PTNode>* PairTree::GetRoot()
 {

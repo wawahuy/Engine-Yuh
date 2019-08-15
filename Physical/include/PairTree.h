@@ -44,7 +44,8 @@ public:
 	void Add(int value1, int value2);
 	void Remove(int value);
 
-	int GetBalanceMax();
+	Tree& GetTreeA();
+	Tree& GetTreeB();
 
 	///Test Query
 	AVLNode<PTNode>* GetRoot();

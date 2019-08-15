@@ -54,7 +54,10 @@ namespace yuh {
 
 	private:
 		/// Cập nhật chiều cao của node
-		void UpdateHeight(AVLNode<T> *node);
+		void UpdateNode(AVLNode<T> *node);
+
+		/// TÍnh chiều cao node
+		void ComputeHeight(AVLNode<T> *node);
 
 		/// Balance
 		AVLNode<T>* Balance(AVLNode<T> *node);
@@ -120,7 +123,7 @@ namespace yuh {
 		*node = nodeNew;
 
 		/// Cập nhât Height
-		UpdateHeight(nodeParent);
+		UpdateNode(nodeParent);
 
 		return nodeNew;
 	}
@@ -195,6 +198,7 @@ namespace yuh {
 				*node = nodeRight;
 				(*node)->left = vNode->left;
 				vNode->left->parent = *node;
+				nodeNeedUpdate = nodeRight;
 			}
 			else {
 				/// Địa chỉ con trỏ giữ node bên trái của node bên phải node cần xóa
@@ -230,7 +234,7 @@ namespace yuh {
 		}
 
 		/// Cập nhật chiều cao
-		UpdateHeight(nodeNeedUpdate);
+		UpdateNode(nodeNeedUpdate);
 
 		delete vNode;
 	}
@@ -279,29 +283,22 @@ namespace yuh {
 	}
 
 	template<class T>
-	inline void AVLTree<T>::UpdateHeight(AVLNode<T>* node)
+	inline void AVLTree<T>::UpdateNode(AVLNode<T>* node)
 	{
 		while (node)
 		{
-			/// Chiều cao cây con
-			int heightLeft	= node->left  ? node->left->height  : 0;
-			int heightRight = node->right ? node->right->height : 0;
-			int newHeight = 1 + yuh::max(heightLeft, heightRight);
-
-			/// Khi chiều cao không thay đổi giữ nguyên
-			if (newHeight == node->height)
-				break;
-
-			/// Cập nhật chiều cao
-			node->height = newHeight;
-
-			/// Cân bằng
-			if(yuh::abs(heightLeft-heightRight) > 1)
-				node = Balance(node);
-
-			/// Node cha
+			node = Balance(node);
+			ComputeHeight(node);
 			node = node->parent;
 		}
+	}
+
+	template<class T>
+	inline void AVLTree<T>::ComputeHeight(AVLNode<T>* node)
+	{
+		int heightLeft = node->left ? node->left->height : 0;
+		int heightRight = node->right ? node->right->height : 0;
+		node->height = 1 + yuh::max(heightLeft, heightRight);
 	}
 
 	template<class T>
@@ -348,18 +345,10 @@ namespace yuh {
 				nodeCLeft->parent = nodeA;
 
 			/// Update Height nodeA
-			int heightLeft = nodeA->left ? nodeA->left->height : 0;
-			int heightRight = nodeA->right ? nodeA->right->height : 0;
-			nodeA->height = 1 + yuh::max(heightLeft, heightRight);
-
-			/// Update Height nodeC
-			heightLeft = nodeC->left ? nodeC->left->height : 0;
-			heightRight = nodeC->right ? nodeC->right->height : 0;
-			nodeC->height = 1 + yuh::max(heightLeft, heightRight);
-
+			ComputeHeight(nodeA);
 
 			/// Return
-			nodeA = nodeC;
+			return nodeC;
 		}
 		/// Rotate nodeB Up
 		else if (u < -1) {
@@ -395,18 +384,10 @@ namespace yuh {
 				nodeBRight->parent = nodeA;
 
 			/// Update Height nodeA
-			int heightLeft = nodeA->left ? nodeA->left->height : 0;
-			int heightRight = nodeA->right ? nodeA->right->height : 0;
-			nodeA->height = 1 + yuh::max(heightLeft, heightRight);
-
-			/// Update Height nodeC
-			heightLeft = nodeB->left ? nodeB->left->height : 0;
-			heightRight = nodeB->right ? nodeB->right->height : 0;
-			nodeB->height = 1 + yuh::max(heightLeft, heightRight);
-
+			ComputeHeight(nodeA);
 
 			/// Return
-			nodeA = nodeB;
+			return nodeB;
 		}
 
 		return nodeA;
