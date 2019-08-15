@@ -59,8 +59,15 @@ namespace yuh {
 		/// TÍnh chiều cao node
 		void ComputeHeight(AVLNode<T> *node);
 
+
+		/// ------ TEST ---------------
 		/// Balance
 		AVLNode<T>* Balance(AVLNode<T> *node);
+
+		/// Xoay
+		AVLNode<T>* RotateLeft(AVLNode<T> *nodeA);
+		AVLNode<T>* RotateRight(AVLNode<T> *nodeA);
+		/// ------ END TEST -----------
 
 		/// Tạo node
 		AVLNode<T>* CreateNode(const T& data);
@@ -313,79 +320,33 @@ namespace yuh {
 
 		/// Rotate nodeC Up
 		if (u > 1) {
-			/// Node cha
-			AVLNode<T> *nodeParentA = nodeA->parent;
-
-			/// Tìm con trỏ giữ node A
-			AVLNode<T> **ptrPtrA;
-			if (nodeParentA) {
-				ptrPtrA = &(nodeParentA->left == nodeA ? nodeParentA->left : nodeParentA->right);
+			if (nodeC) {
+				AVLNode<T> *nodeCB = nodeC->left;
+				AVLNode<T> *nodeCC = nodeC->right;
+				int heightCB = nodeCB ? nodeCB->height : 0;
+				int heightCC = nodeCC ? nodeCC->height : 0;
+				int uc = heightCC - heightCB;
+				if (uc < 0) {
+					nodeC = RotateRight(nodeC);
+				}
 			}
-			else
-			{
-				ptrPtrA = &m_root;
-			}
-
-			/// Chuyển node nhánh của node cha của A sang node C
-			*ptrPtrA = nodeC;
-
-			/// Gán cha trên NodeC
-			nodeC->parent = nodeParentA;
-
-			/// Giữ node trái của nodeC
-			AVLNode<T> *nodeCLeft = nodeC->left;
-
-			/// Chuyển NodeA xuống node trái C
-			nodeC->left = nodeA;
-			nodeA->parent = nodeC;
-
-			/// Chuyển node trái cũ của nodeC sang làm node con của node phải A
-			nodeA->right = nodeCLeft;
-			if(nodeCLeft)
-				nodeCLeft->parent = nodeA;
-
-			/// Update Height nodeA
-			ComputeHeight(nodeA);
-
+			RotateLeft(nodeA);
 			/// Return
 			return nodeC;
 		}
 		/// Rotate nodeB Up
 		else if (u < -1) {
-			/// Node cha
-			AVLNode<T> *nodeParentA = nodeA->parent;
-
-			/// Tìm con trỏ giữ node A
-			AVLNode<T> **ptrPtrA;
-			if (nodeParentA) {
-				ptrPtrA = &(nodeParentA->left == nodeA ? nodeParentA->left : nodeParentA->right);
+			if (nodeB) {
+				AVLNode<T> *nodeBB = nodeB->left;
+				AVLNode<T> *nodeBC = nodeB->right;
+				int heightBB = nodeBB ? nodeBB->height : 0;
+				int heightBC = nodeBC ? nodeBC->height : 0;
+				int uc = heightBC - heightBB;
+				if (uc > 0) {
+					nodeB = RotateLeft(nodeB);
+				}
 			}
-			else
-			{
-				ptrPtrA = &m_root;
-			}
-
-			/// Chuyển node nhánh của node cha của A sang node B
-			*ptrPtrA = nodeB;
-
-			/// Gán cha trên NodeB
-			nodeB->parent = nodeParentA;
-
-			/// Giữ node trái của nodeB
-			AVLNode<T> *nodeBRight = nodeB->right;
-
-			/// Chuyển NodeA xuống node phai B
-			nodeB->right = nodeA;
-			nodeA->parent = nodeB;
-
-			/// Chuyển node phai cũ của nodeB sang làm node con của node trái A
-			nodeA->left = nodeBRight;
-			if (nodeBRight)
-				nodeBRight->parent = nodeA;
-
-			/// Update Height nodeA
-			ComputeHeight(nodeA);
-
+			RotateRight(nodeA);
 			/// Return
 			return nodeB;
 		}
@@ -393,6 +354,94 @@ namespace yuh {
 		return nodeA;
 	}
 
+
+	template<class T>
+	inline AVLNode<T>* AVLTree<T>::RotateLeft(AVLNode<T>* nodeA)
+	{
+		AVLNode<T> *nodeB = nodeA->left;
+		AVLNode<T> *nodeC = nodeA->right;
+
+		/// Rotate nodeC Up
+		/// Node cha
+		AVLNode<T> *nodeParentA = nodeA->parent;
+
+		/// Tìm con trỏ giữ node A
+		AVLNode<T> **ptrPtrA;
+		if (nodeParentA) {
+			ptrPtrA = &(nodeParentA->left == nodeA ? nodeParentA->left : nodeParentA->right);
+		}
+		else
+		{
+			ptrPtrA = &m_root;
+		}
+
+		/// Chuyển node nhánh của node cha của A sang node C
+		*ptrPtrA = nodeC;
+
+		/// Gán cha trên NodeC
+		nodeC->parent = nodeParentA;
+
+		/// Giữ node trái của nodeC
+		AVLNode<T> *nodeCLeft = nodeC->left;
+
+		/// Chuyển NodeA xuống node trái C
+		nodeC->left = nodeA;
+		nodeA->parent = nodeC;
+
+		/// Chuyển node trái cũ của nodeC sang làm node con của node phải A
+		nodeA->right = nodeCLeft;
+		if (nodeCLeft)
+			nodeCLeft->parent = nodeA;
+
+		ComputeHeight(nodeA);
+		ComputeHeight(nodeC);
+
+		/// Return
+		return nodeC;
+	}
+
+	template<class T>
+	inline AVLNode<T>* AVLTree<T>::RotateRight(AVLNode<T>* nodeA)
+	{
+		AVLNode<T> *nodeB = nodeA->left;
+		AVLNode<T> *nodeC = nodeA->right;
+		/// Node cha
+		AVLNode<T> *nodeParentA = nodeA->parent;
+
+		/// Tìm con trỏ giữ node A
+		AVLNode<T> **ptrPtrA;
+		if (nodeParentA) {
+			ptrPtrA = &(nodeParentA->left == nodeA ? nodeParentA->left : nodeParentA->right);
+		}
+		else
+		{
+			ptrPtrA = &m_root;
+		}
+
+		/// Chuyển node nhánh của node cha của A sang node B
+		*ptrPtrA = nodeB;
+
+		/// Gán cha trên NodeB
+		nodeB->parent = nodeParentA;
+
+		/// Giữ node trái của nodeB
+		AVLNode<T> *nodeBRight = nodeB->right;
+
+		/// Chuyển NodeA xuống node phai B
+		nodeB->right = nodeA;
+		nodeA->parent = nodeB;
+
+		/// Chuyển node phai cũ của nodeB sang làm node con của node trái A
+		nodeA->left = nodeBRight;
+		if (nodeBRight)
+			nodeBRight->parent = nodeA;
+
+		/// Update Height nodeA
+		ComputeHeight(nodeA);
+
+		/// Return
+		return nodeB;
+	}
 
 	template<class T>
 	inline AVLNode<T>* AVLTree<T>::CreateNode(const T & data)
