@@ -7,8 +7,6 @@
 
 #define MARGIN_PX_AABB 1
 #define MARGIN_FACTOR_VELOCITY_AABB 2.0f
-#define DEBUG_PAIR_TREE
-//#define DEBUG_PAIR_LIST
 
 S_NS_PHYSICAL
 ;
@@ -134,12 +132,8 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-#ifdef DEBUG_PAIR_TREE
 	PairTree				m_listCachePair;
-#endif
-#ifdef DEBUG_PAIR_LIST
-	PairList				m_listCachePairB;
-#endif
+
 
 	/// Danh sách node
 	std::vector<BPNode *>	m_listNode;

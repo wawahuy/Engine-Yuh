@@ -214,9 +214,10 @@ namespace yuh {
 
 				/// Tìm địa chỉ của con trỏ giữ node bên phải xâu nhất
 				while ((*temp)->left != NodeNull) {
-					nodeNeedUpdate = nodeRight->left;
+					nodeNeedUpdate = nodeNeedUpdate->left;
 					temp = &((*temp)->left);
 				}
+
 
 				/// Node cần swap
 				*node = *temp;

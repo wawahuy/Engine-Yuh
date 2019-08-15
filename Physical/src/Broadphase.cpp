@@ -246,12 +246,7 @@ void Broadphase::Update()
 			RebuildBottomUp(nodeSibling->parent);
 
 			/// Xóa các bộ đệm va chạm
-#ifdef DEBUG_PAIR_TREE
 			m_listCachePair.Remove(node->index);
-#endif
-#ifdef DEBUG_PAIR_LIST
-			m_listCachePairB.Remove(node->index);
-#endif
 		}
 	}
 
@@ -276,12 +271,7 @@ void Broadphase::QueryPair(int queryID, const AABB & aabb)
 				if (queryID == node->index) continue;
 
 				/// Thêm vào danh sách va chạm
-#ifdef DEBUG_PAIR_TREE
 				m_listCachePair.Add(queryID, node->index);
-#endif
-#ifdef DEBUG_PAIR_LIST
-				m_listCachePairB.Add(queryID, node->index);
-#endif
 			}
 			else {
 				stack[cstack++] = node->left;
@@ -298,42 +288,7 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 		QueryPair(i, m_listNode[i]->aabb);
 	}
 
-#ifdef DEBUG_PAIR_LIST
-	PSLNode *stackAL[2560];
-	PSLNodePair *stackBL[2560];
 
-	int cstackAL = 0;
-	stackAL[cstackAL++] = m_listCachePairB.GetRootA();
-
-	while (cstackAL)
-	{
-		PSLNode *node = stackAL[--cstackAL];
-
-		if (node) {
-			stackAL[cstackAL++] = node->left;
-			stackAL[cstackAL++] = node->right;
-
-			int cstackB = 0;
-			stackBL[cstackB++] = node->rootPair;
-			while (cstackB)
-			{
-				PSLNodePair *nodePair = stackBL[--cstackB];
-
-				if (nodePair) {
-					stackBL[cstackB++] = nodePair->left;
-					stackBL[cstackB++] = nodePair->right;
-
-					outListColliderPair.push_back({
-						m_listNode[node->value]->userdata,
-						m_listNode[nodePair->value->value]->userdata
-					});
-				}
-			}
-		}
-	}
-#endif
-
-#ifdef DEBUG_PAIR_TREE
 	AVLNode<PTNode> *stackA[2560];
 	AVLNode<AVLNode<PTNode>*> *stackB[2560];
 
@@ -366,7 +321,6 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 			}
 		}
 	}
-#endif
 
 	m_listMove.clear();
 }
