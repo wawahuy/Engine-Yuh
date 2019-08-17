@@ -24,10 +24,10 @@
     <ClInclude Include="include\Export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PairList.h">
+    <ClInclude Include="include\PairTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PairTree.h">
+    <ClInclude Include="include\PairTree2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,10 +38,10 @@
     <ClCompile Include="src\Broadphase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PairList.cpp">
+    <ClCompile Include="src\PairTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PairTree.cpp">
+    <ClCompile Include="src\PairTree2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

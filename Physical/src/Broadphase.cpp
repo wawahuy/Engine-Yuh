@@ -289,15 +289,48 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 	}
 
 
-	AVLNode<PTNode> *stackA[2560];
-	AVLNode<AVLNode<PTNode>*> *stackB[2560];
+	//AVLNode<PTNode> *stackA[2560];
+	//AVLNode<AVLNode<PTNode>*> *stackB[2560];
+
+	//int cstackA = 0;
+	//stackA[cstackA++] = m_listCachePair.GetRoot();
+
+	//while (cstackA)
+	//{
+	//	AVLNode<PTNode>  *node = stackA[--cstackA];
+
+	//	if (node) {
+	//		stackA[cstackA++] = node->left;
+	//		stackA[cstackA++] = node->right;
+
+	//		int cstackB = 0;
+	//		stackB[cstackB++] = node->data.pair.GetRoot();
+	//		while (cstackB)
+	//		{
+	//			AVLNode<AVLNode<PTNode>*> *nodePair = stackB[--cstackB];
+
+	//			if (nodePair) {
+	//				stackB[cstackB++] = nodePair->left;
+	//				stackB[cstackB++] = nodePair->right;
+
+	//				outListColliderPair.push_back({
+	//					m_listNode[node->data.value]->userdata,
+	//					m_listNode[nodePair->data->data.value]->userdata
+	//				});
+	//			}
+	//		}
+	//	}
+	//}
+
+	AVLNode<physicalTest::PTNode> *stackA[2560];
+	AVLNode<physicalTest::CPTNode> *stackB[2560];
 
 	int cstackA = 0;
 	stackA[cstackA++] = m_listCachePair.GetRoot();
 
 	while (cstackA)
 	{
-		AVLNode<PTNode>  *node = stackA[--cstackA];
+		AVLNode<physicalTest::PTNode> *node = stackA[--cstackA];
 
 		if (node) {
 			stackA[cstackA++] = node->left;
@@ -307,7 +340,7 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 			stackB[cstackB++] = node->data.pair.GetRoot();
 			while (cstackB)
 			{
-				AVLNode<AVLNode<PTNode>*> *nodePair = stackB[--cstackB];
+				AVLNode<physicalTest::CPTNode> *nodePair = stackB[--cstackB];
 
 				if (nodePair) {
 					stackB[cstackB++] = nodePair->left;
@@ -315,7 +348,7 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 
 					outListColliderPair.push_back({
 						m_listNode[node->data.value]->userdata,
-						m_listNode[nodePair->data->data.value]->userdata
+						m_listNode[nodePair->data.value]->userdata
 					});
 				}
 			}
@@ -411,7 +444,7 @@ int Broadphase::GetNumPairCache()
 	return 0;
 }
 
-PairTree & Broadphase::GetPairCacheTree()
+physicalTest::PairTree & Broadphase::GetPairCacheTree()
 {
 	return m_listCachePair;
 }

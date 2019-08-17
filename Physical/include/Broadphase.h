@@ -2,8 +2,8 @@
 #include "AABB.h"
 #include <vector>
 #include <algorithm>
-#include "PairList.h"
 #include "PairTree.h"
+#include "PairTree2.h"
 
 #define MARGIN_PX_AABB 1
 #define MARGIN_FACTOR_VELOCITY_AABB 2.0f
@@ -108,7 +108,7 @@ public:
 	int GetNumMoveObject();
 	int GetNumNode();
 	int GetNumPairCache();
-	PairTree &GetPairCacheTree();
+	physicalTest::PairTree &GetPairCacheTree();
 
 private:
 	BPNode*	 CreateNode();
@@ -132,7 +132,7 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-	PairTree				m_listCachePair;
+	physicalTest::PairTree				m_listCachePair;
 
 
 	/// Danh sách node
