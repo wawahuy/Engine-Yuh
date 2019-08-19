@@ -1,6 +1,8 @@
 ﻿#pragma once
 #define NodeNull 0
 #include "YMath.h"
+#include <memory>
+#include <iostream>
 
 namespace yuh {
 
@@ -52,6 +54,8 @@ namespace yuh {
 		/// Lấy Balance max
 		int GetBalanceMax();
 
+		void Free();
+
 	private:
 		/// Cập nhật chiều cao của node
 		void UpdateNode(AVLNode<T> *node);
@@ -67,8 +71,6 @@ namespace yuh {
 		/// Xoay
 		AVLNode<T>* RotateLeft(AVLNode<T> *nodeA);
 		AVLNode<T>* RotateRight(AVLNode<T> *nodeA);
-
-		
 
 		/// ------ END TEST -----------
 
@@ -90,8 +92,6 @@ namespace yuh {
 	template<class T>
 	inline AVLTree<T>::~AVLTree()
 	{
-		/// Code xóa tấc cả node trên cây
-		/// Chưa xây dựng
 	}
 
 	template<class T>
@@ -247,6 +247,7 @@ namespace yuh {
 		/// Cập nhật chiều cao
 		UpdateNode(nodeNeedUpdate);
 
+		///
 		delete vNode;
 	}
 
@@ -291,6 +292,26 @@ namespace yuh {
 		}
 
 		return balanceMax;
+	}
+
+	template<class T>
+	inline void AVLTree<T>::Free()
+	{
+		/// Xóa node trên cây
+		AVLNode<T> *stack[256];
+		int cstack = 0;
+		stack[cstack++] = m_root;
+		while (cstack)
+		{
+			AVLNode<T> *node = stack[--cstack];
+			if (node) {
+				stack[cstack++] = node->left;
+				stack[cstack++] = node->right;
+				delete node;
+			}
+		}
+
+		m_root = 0;
 	}
 
 	template<class T>

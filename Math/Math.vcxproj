@@ -115,7 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AVLTree.h" />
-    <ClInclude Include="include\AVLTree2.h" />
     <ClInclude Include="include\YMath.h" />
     <ClInclude Include="include\Vector2D.h" />
     <ClInclude Include="include\Vector3D.h" />

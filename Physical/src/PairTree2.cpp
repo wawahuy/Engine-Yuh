@@ -88,6 +88,7 @@ void PairTree::RemoveOnTree(Tree & tA, Tree &tB, int value)
 			/// Xóa node trên cây B
 			/// Nếu nó không chứa cặp pair nào khác
 			if (treePair.GetRoot() == NodeNull) {
+				///treePair.Free();
 				tB.RemoveNodeC(node->data.nodeP);
 			}
 
@@ -97,6 +98,7 @@ void PairTree::RemoveOnTree(Tree & tA, Tree &tB, int value)
 
 
 	/// Xóa node có giá trị value
+	/// (*nodeA)->data.pair.Free();
 	tA.RemoveNode(nodeA);
 }
 
