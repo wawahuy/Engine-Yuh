@@ -3,6 +3,7 @@
 #include "YMath.h"
 #include <memory>
 #include <iostream>
+#include "AVLTree2.h"
 
 namespace yuh {
 
