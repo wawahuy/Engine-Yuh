@@ -328,6 +328,8 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 	int cstackA = 0;
 	stackA[cstackA++] = m_listCachePair.GetRoot();
 
+	outListColliderPair.reserve(m_listCachePair.m_numPair/2);
+
 	while (cstackA)
 	{
 		AVLNode<physicalTest::PTNode> *node = stackA[--cstackA];

@@ -55,11 +55,14 @@ public:
 	///Test Query
 	AVLNode<PTNode>* GetRoot();
 
+	int m_numPair = 0;
+
 private:
 	void RemoveOnTree(Tree &tA, Tree &tB, int value);
 
 	Tree treeA;
 	Tree treeB;
+
 };
 
 E_NS

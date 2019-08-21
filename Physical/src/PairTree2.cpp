@@ -33,6 +33,8 @@ void PairTree::Add(int value1, int value2)
 
 	nPair2->data.pair = nPair1;
 	nPair2->data.nodeP = nodeVal1;
+
+	m_numPair++;
 }
 
 void PairTree::Remove(int value)
@@ -93,6 +95,7 @@ void PairTree::RemoveOnTree(Tree & tA, Tree &tB, int value)
 			}
 
 			delete node;
+			m_numPair--;
 		}
 	}
 
