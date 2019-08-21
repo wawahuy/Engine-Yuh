@@ -321,7 +321,6 @@ namespace yuh {
 		while (node)
 		{
 			node = Balance(node);
-			ComputeHeight(node);
 			node = node->parent;
 		}
 	}
@@ -329,9 +328,11 @@ namespace yuh {
 	template<class T>
 	inline void AVLTree<T>::ComputeHeight(AVLNode<T>* node)
 	{
-		int heightLeft = node->left ? node->left->height : 0;
-		int heightRight = node->right ? node->right->height : 0;
-		node->height = 1 + yuh::max(heightLeft, heightRight);
+		node->height = 
+			1 + yuh::max(
+				node->left  ? node->left->height  : 0,
+				node->right ? node->right->height : 0
+			);
 	}
 
 	template<class T>
@@ -351,8 +352,7 @@ namespace yuh {
 				AVLNode<T> *nodeCC = nodeC->right;
 				int heightCB = nodeCB ? nodeCB->height : 0;
 				int heightCC = nodeCC ? nodeCC->height : 0;
-				int uc = heightCC - heightCB;
-				if (uc < 0) {
+				if (heightCC < heightCB) {
 					nodeC = RotateRight(nodeC);
 				}
 			}
@@ -367,8 +367,7 @@ namespace yuh {
 				AVLNode<T> *nodeBC = nodeB->right;
 				int heightBB = nodeBB ? nodeBB->height : 0;
 				int heightBC = nodeBC ? nodeBC->height : 0;
-				int uc = heightBC - heightBB;
-				if (uc > 0) {
+				if (heightBC > heightBB) {
 					nodeB = RotateLeft(nodeB);
 				}
 			}
@@ -376,6 +375,9 @@ namespace yuh {
 			/// Return
 			return nodeB;
 		}
+
+		/// Tính lại chiều cao Node
+		nodeA->height = 1 + yuh::max(heightB, heightC);
 
 		return nodeA;
 	}

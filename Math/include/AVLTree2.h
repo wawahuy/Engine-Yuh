@@ -178,10 +178,10 @@ namespace yuhTest {
 				nodeC->left = nodeCBRight;
 				if (nodeCBRight) {
 					nodeCBRight->parent = nodeC;
-					
-					/// Cập nhật height cho nodeC
-					ComputeHeight(nodeC);
 				}
+
+				/// Cập nhật height cho nodeC
+				ComputeHeight(nodeC);
 
 				/// Cập nhật height cho nodeCB
 				ComputeHeight(nodeCB);
@@ -213,10 +213,10 @@ namespace yuhTest {
 			nodeA->right = nodeCB;
 			if (nodeCB) {
 				nodeCB->parent = nodeA;
-
-				/// Cập nhật height cho nodeA
-				ComputeHeight(nodeA);
 			}
+
+			/// Cập nhật height cho nodeA
+			ComputeHeight(nodeA);
 
 			/// Cập nhật height cho nodeC
 			ComputeHeight(nodeC);
@@ -224,7 +224,7 @@ namespace yuhTest {
 			/// Gán lại địa chỉ cho nodeA
 			*ptr2NodeA = nodeC;
 			nodeC->parent = parentNodeA;
-
+			
 			return nodeC;
 		}
 
@@ -250,10 +250,10 @@ namespace yuhTest {
 				nodeB->right = nodeBCLeft;
 				if (nodeBCLeft) {
 					nodeBCLeft->parent = nodeB;
-
-					/// Cập nhật height cho nodeC
-					ComputeHeight(nodeB);
 				}
+
+				/// Cập nhật height cho nodeC
+				ComputeHeight(nodeB);
 
 				/// Cập nhật height cho nodeCB
 				ComputeHeight(nodeBC);
@@ -285,10 +285,10 @@ namespace yuhTest {
 			nodeA->left = nodeBC;
 			if (nodeBC) {
 				nodeBC->parent = nodeA;
-
-				/// Cập nhật height cho nodeA
-				ComputeHeight(nodeA);
 			}
+
+			/// Cập nhật height cho nodeA
+			ComputeHeight(nodeA);
 
 			/// Cập nhật height cho nodeB
 			ComputeHeight(nodeB);
