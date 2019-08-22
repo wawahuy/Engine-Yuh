@@ -4,9 +4,14 @@
 #include <YMath.h>
 
 S_NS_PHYSICAL
-;
 
 struct PTNode;
+
+struct CPTNode {
+	int value;
+	AVLNode<CPTNode> *pair;
+	AVLNode<PTNode> *nodeP;
+};
 
 
 /// Node Pair Tree
@@ -15,7 +20,7 @@ struct PTNode {
 	int value;
 
 	/// Danh sách các mối liện kết đến phần tử khác
-	AVLTree<AVLNode<PTNode>*> pair;
+	AVLTree<CPTNode> pair;
 };
 
 inline bool operator==(const PTNode& a, const PTNode& b) {
@@ -26,14 +31,13 @@ inline bool operator<(const PTNode& a, const PTNode& b) {
 	return a.value < b.value;
 }
 
-inline bool operator==(AVLNode<AVLNode<PTNode>*> const &a, AVLNode<AVLNode<PTNode>*> const &b) {
-	return a.data->data.value == b.data->data.value;
+inline bool operator==(const CPTNode& a, const CPTNode& b) {
+	return a.value == b.value;
 }
 
-inline bool operator<(AVLNode<AVLNode<PTNode>*> const &a, AVLNode<AVLNode<PTNode>*> const &b) {
-	return a.data->data.value < b.data->data.value;
+inline bool operator<(const CPTNode& a, const CPTNode& b) {
+	return a.value < b.value;
 }
-
 
 /// Pair Tree
 /// Chứa các cặp giá trị
@@ -50,11 +54,14 @@ public:
 	///Test Query
 	AVLNode<PTNode>* GetRoot();
 
+	int m_numPair = 0;
+
 private:
 	void RemoveOnTree(Tree &tA, Tree &tB, int value);
 
 	Tree treeA;
 	Tree treeB;
+
 };
 
 E_NS

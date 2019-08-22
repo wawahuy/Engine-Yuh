@@ -3,14 +3,12 @@
 #include <vector>
 #include <algorithm>
 #include "PairTree.h"
-#include "PairTree2.h"
 
 #define MARGIN_PX_AABB 1
 #define MARGIN_FACTOR_VELOCITY_AABB 2.0f
 
 S_NS_PHYSICAL
 ;
-struct BPNode;
 
 typedef Pair<int, int> IndexPair;
 
@@ -108,7 +106,7 @@ public:
 	int GetNumMoveObject();
 	int GetNumNode();
 	int GetNumPairCache();
-	physicalTest::PairTree &GetPairCacheTree();
+	PairTree &GetPairCacheTree();
 
 private:
 	BPNode*	 CreateNode();
@@ -132,7 +130,7 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-	physicalTest::PairTree				m_listCachePair;
+	PairTree				m_listCachePair;
 
 
 	/// Danh sách node

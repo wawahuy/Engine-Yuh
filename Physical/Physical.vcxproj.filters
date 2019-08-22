@@ -27,9 +27,6 @@
     <ClInclude Include="include\PairTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PairTree2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AABB.cpp">
@@ -39,9 +36,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\PairTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PairTree2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
