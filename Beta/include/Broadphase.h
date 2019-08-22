@@ -1,39 +1,13 @@
 ﻿#pragma once
-#include "AABB.h"
-#include "PairList.h"
 #include <vector>
 #include <algorithm>
+#include "Export.h"
+#include "PairTree.h"
+#include "ICollider.h"
 
-#define MARGIN_PX_AABB 1
-#define MARGIN_FACTOR_VELOCITY_AABB 2.0f
 
 S_NS_PHYSICAL
 ;
-
-struct BPNode;
-
-
-/// Interface
-/// Các đối tượng có thể va chạm cần được kế thừa ICollider
-/// Là một thành phần trong Broadphase
-/// Nó bao gồm việc xây dựng getAABB() quanh đối tượng, và getVelocity() là vận tốc đối tượng
-class ICollider {
-	friend class Broadphase;
-
-public:
-	virtual AABB  getAABB() = 0;
-	virtual Vec2f getVelocity() = 0;
-
-private:
-	/// Chỉ số node trên Broadphase
-	int nodeIndex;
-};
-
-
-
-
-typedef Pair<int, int>					IndexPair;
-typedef Pair<ICollider *, ICollider *>	IColliderPair;
 
 
 
@@ -108,6 +82,7 @@ public:
 	int GetNumMoveObject();
 	int GetNumNode();
 	int GetNumPairCache();
+	PairTree &GetPairCacheTree();
 
 private:
 	BPNode*	 CreateNode();
@@ -116,7 +91,6 @@ private:
 	void	 Balance(int iA);
 	void	 ComputeAABBObject(BPNode *node);
 	void	 RebuildBottomUp(int index);
-	void	 ClearPairCacheOnNode(int index);
 
 	/// Node gốc
 	int						m_root;
@@ -132,10 +106,11 @@ private:
 	std::vector<int>		m_listLeaf;
 
 	/// Danh sách các cặp va chạm
-	std::vector<IndexPair>	m_listCachePair;
+	PairTree				m_listCachePair;
 
 	/// Danh sách node
 	std::vector<BPNode *>	m_listNode;
+
 };
 
 E_NS

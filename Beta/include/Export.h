@@ -6,13 +6,18 @@
 	#define YUH_API_PHYSICAL __declspec(dllimport)
 #endif
 
+/// Namespace
 #define S_NS_PHYSICAL namespace yuh { \
 						namespace physical {
+
+/// End namspace
 #define E_NS } }
 
-#define PTM_RATIO 32
 
+/// Class: Broadphase
+/// Lề 'px' của node so với object
+#define MARGIN_PX_AABB 1
 
-/* World -< Body -< List Collider -< Shape
- *
- */
+/// Class: Broadphase
+/// Hệ số vận tốc để mở rộng độ lớn node
+#define MARGIN_FACTOR_VELOCITY_AABB 2.0f

@@ -289,39 +289,6 @@ void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 	}
 
 
-	//AVLNode<PTNode> *stackA[2560];
-	//AVLNode<AVLNode<PTNode>*> *stackB[2560];
-
-	//int cstackA = 0;
-	//stackA[cstackA++] = m_listCachePair.GetRoot();
-
-	//while (cstackA)
-	//{
-	//	AVLNode<PTNode>  *node = stackA[--cstackA];
-
-	//	if (node) {
-	//		stackA[cstackA++] = node->left;
-	//		stackA[cstackA++] = node->right;
-
-	//		int cstackB = 0;
-	//		stackB[cstackB++] = node->data.pair.GetRoot();
-	//		while (cstackB)
-	//		{
-	//			AVLNode<AVLNode<PTNode>*> *nodePair = stackB[--cstackB];
-
-	//			if (nodePair) {
-	//				stackB[cstackB++] = nodePair->left;
-	//				stackB[cstackB++] = nodePair->right;
-
-	//				outListColliderPair.push_back({
-	//					m_listNode[node->data.value]->userdata,
-	//					m_listNode[nodePair->data->data.value]->userdata
-	//				});
-	//			}
-	//		}
-	//	}
-	//}
-
 	AVLNode<PTNode> *stackA[2560];
 	AVLNode<CPTNode> *stackB[2560];
 

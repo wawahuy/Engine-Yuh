@@ -246,70 +246,13 @@ void Broadphase::Update()
 			RebuildBottomUp(nodeSibling->parent);
 
 			/// Xóa các bộ đệm va chạm
-			ClearPairCacheOnNode(node->index);
+			m_listCachePair.Remove(node->index);
 		}
 	}
 
 
 }
 
-void Broadphase::ClearPairCacheOnNode(int index)
-{
-	int size = m_listCachePair.size();
-	std::vector<IndexPair>::iterator begin = m_listCachePair.begin();
-
-	/// Tìm kiếm và xóa trên A
-	/// Binary search
-	int left  = 0;
-	int right = size - 1;
-	int ret   = -1;
-	while (left <= right) {
-		int mid   = (left + right) / 2;
-		int value = m_listCachePair[mid].A;
-		if (index == value) {
-			ret = mid;
-			break;
-		}
-		else if (index < value)
-			right = mid - 1;
-		else if (index > value)
-			left = mid + 1;
-	}
-
-	if (ret != -1) {
-		/// Xác định vùng xóa
-		left  = ret;
-		right = ret;
-		while (left-- && m_listCachePair[left].A == index);
-		while (++right < size && m_listCachePair[right].A == index);
-
-		/// Xóa
-		m_listCachePair.erase(begin + left + 1, begin + right);
-
-		/// Cập nhật chỉ số
-		size = m_listCachePair.size();
-	}
-
-	/// Tìm kiếm và xóa trên B
-	/// Linear search
-	/// Tấc cả node có A < index
-	int i = 0;
-	while (i < size)
-	{
-		const IndexPair &p1 = m_listCachePair[i];
-
-		if (p1.A > index)
-			break;
-
-		if (p1.B == index) {
-			m_listCachePair.erase(m_listCachePair.begin() + i);
-			size = m_listCachePair.size();
-		}
-		else {
-			++i;
-		}
-	}
-}
 
 
 void Broadphase::QueryPair(int queryID, const AABB & aabb)
@@ -328,10 +271,7 @@ void Broadphase::QueryPair(int queryID, const AABB & aabb)
 				if (queryID == node->index) continue;
 
 				/// Thêm vào danh sách va chạm
-				m_listCachePair.push_back(IndexPair{
-					yuh::min(queryID, node->index),
-					yuh::max(queryID, node->index)
-				});
+				m_listCachePair.Add(queryID, node->index);
 			}
 			else {
 				stack[cstack++] = node->left;
@@ -341,52 +281,79 @@ void Broadphase::QueryPair(int queryID, const AABB & aabb)
 	}
 }
 
-
-bool PairLessThan(const IndexPair& A, const IndexPair& B)
-{
-	if (A.A < B.A)
-	{
-		return true;
-	}
-
-	if (A.A == B.A)
-	{
-		return A.B < B.B;
-	}
-
-	return false;
-}
-
 void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
 {
-	int sizePair = m_listCachePair.size();
-
 	/// Truy vấn va chạm
 	for (int i : m_listMove) {
 		QueryPair(i, m_listNode[i]->aabb);
 	}
 
-	/// Sắp xếp va chạm
-	if(sizePair != m_listCachePair.size())
-		std::sort(m_listCachePair.begin(), m_listCachePair.end(), PairLessThan);
 
-	/// Add pair
-	int i = 0;
-	int size = m_listCachePair.size();
-	while (i < size) {
-		const IndexPair &p1 = m_listCachePair[i];
-		outListColliderPair.push_back({
-			m_listNode[p1.A]->userdata,
-			m_listNode[p1.B]->userdata
-		});
+	//AVLNode<PTNode> *stackA[2560];
+	//AVLNode<AVLNode<PTNode>*> *stackB[2560];
 
-		++i;
-		while (i < size) {
-			const IndexPair &p2 = m_listCachePair[i];
-			if (p1.A != p2.A || p1.B != p2.B)
-				break;
-			m_listCachePair.erase(m_listCachePair.begin() + i);
-			size = m_listCachePair.size();
+	//int cstackA = 0;
+	//stackA[cstackA++] = m_listCachePair.GetRoot();
+
+	//while (cstackA)
+	//{
+	//	AVLNode<PTNode>  *node = stackA[--cstackA];
+
+	//	if (node) {
+	//		stackA[cstackA++] = node->left;
+	//		stackA[cstackA++] = node->right;
+
+	//		int cstackB = 0;
+	//		stackB[cstackB++] = node->data.pair.GetRoot();
+	//		while (cstackB)
+	//		{
+	//			AVLNode<AVLNode<PTNode>*> *nodePair = stackB[--cstackB];
+
+	//			if (nodePair) {
+	//				stackB[cstackB++] = nodePair->left;
+	//				stackB[cstackB++] = nodePair->right;
+
+	//				outListColliderPair.push_back({
+	//					m_listNode[node->data.value]->userdata,
+	//					m_listNode[nodePair->data->data.value]->userdata
+	//				});
+	//			}
+	//		}
+	//	}
+	//}
+
+	AVLNode<PTNode> *stackA[2560];
+	AVLNode<CPTNode> *stackB[2560];
+
+	int cstackA = 0;
+	stackA[cstackA++] = m_listCachePair.GetRoot();
+
+	outListColliderPair.reserve(m_listCachePair.m_numPair/2);
+
+	while (cstackA)
+	{
+		AVLNode<PTNode> *node = stackA[--cstackA];
+
+		if (node) {
+			stackA[cstackA++] = node->left;
+			stackA[cstackA++] = node->right;
+
+			int cstackB = 0;
+			stackB[cstackB++] = node->data.pair.GetRoot();
+			while (cstackB)
+			{
+				AVLNode<CPTNode> *nodePair = stackB[--cstackB];
+
+				if (nodePair) {
+					stackB[cstackB++] = nodePair->left;
+					stackB[cstackB++] = nodePair->right;
+
+					outListColliderPair.push_back({
+						m_listNode[node->data.value]->userdata,
+						m_listNode[nodePair->data.value]->userdata
+					});
+				}
+			}
 		}
 	}
 
@@ -476,7 +443,12 @@ int Broadphase::GetNumNode()
 
 int Broadphase::GetNumPairCache()
 {
-	return m_listCachePair.size();
+	return 0;
+}
+
+PairTree & Broadphase::GetPairCacheTree()
+{
+	return m_listCachePair;
 }
 
 
