@@ -39,13 +39,11 @@ void Broadphase::Add(ICollider * object)
 	BPNode* node	= CreateNode();
 	node->userdata	= object;
 
-	/// Gán ID node cho userdata
 	object->m_nodeIndex = node->index;
 
 	/// Tính toán và vỗ béo aabb
 	ComputeFatAABB(node);
 
-	/// Thêm vào danh sách xữ lí bộ đệm va chạm
 	m_listMove.push_back(node->index);
 
 	/// Thêm lá vào cây
@@ -162,7 +160,6 @@ void Broadphase::RebuildBottomUp(int index)
 		/// AABB
 		node->aabb = left->aabb.Combine(right->aabb);
 
-		/// Next
 		index = node->parent;
 	}
 }
@@ -183,6 +180,16 @@ void Broadphase::Balance(int iA)
 
 }
 
+int Broadphase::RotateLeft(int iA)
+{
+	return 0;
+}
+
+int Broadphase::RotateRight(int iA)
+{
+	return 0;
+}
+
 void Broadphase::Remove(ICollider * object)
 {
 }
@@ -190,8 +197,8 @@ void Broadphase::Remove(ICollider * object)
 void Broadphase::Move(ICollider *object)
 {
 	BPNode* node = m_listNode[object->m_nodeIndex];
-	AABB	aabbFat = node->aabb;
-	AABB	aabbObj = node->userdata->getAABB();
+	const AABB& aabbFat = node->aabb;
+	const AABB& aabbObj = node->userdata->getAABB();
 
 	if (aabbFat.Contains(aabbObj) == false) {
 		BPNode* nodeParent = m_listNode[node->parent];

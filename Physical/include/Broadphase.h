@@ -87,11 +87,13 @@ public:
 
 private:
 	BPNode*	 CreateNode();
-	void	 QueryPair(int queryID, const AABB& aabb);
 	void	 InsertNode(int indexInsert, int indexBranch = BPNode::Null);
-	void	 Balance(int iA);
 	void	 ComputeFatAABB(BPNode *node);
 	void	 RebuildBottomUp(int index);
+	
+	void	 Balance(int iA);
+	int		 RotateLeft(int iA);
+	int		 RotateRight(int iA);
 
 	/// Node gốc
 	int						m_root;
@@ -104,12 +106,19 @@ private:
 	std::vector<BPNode *>	m_listNode;
 };
 
+
 inline bool Broadphase::TestOverlap(int iA, int iB) {
-	AABB aabb1 = m_listNode[iA]->aabb;
-	AABB aabb2 = m_listNode[iB]->aabb;
+	const AABB& aabb1 = m_listNode[iA]->aabb;
+	const AABB& aabb2 = m_listNode[iB]->aabb;
 	return aabb1.Overlap(aabb2);
 }
 
+
+
+
+/// -------------- Phần sau có sử dụng mã của Box 2D -----------------
+/// https://github.com/erincatto/Box2D/blob/master/Box2D/Collision/b2BroadPhase.h
+/// Đoạn code tham khảo và được sửa đổi để phù hơp với dự án
 
 inline bool b2PairLessThan(const Pair<int, int>& pair1, const Pair<int, int>& pair2)
 {
@@ -131,35 +140,38 @@ template<class T>
 inline void Broadphase::UpdatePair(T * contactManager)
 {
 	int stack[256];
-	int c_stack;
+	int stack_count;
 	std::vector<Pair<int, int>> list_pair;
 
-	for (int i : m_listMove) {
+	for (int nodeQrID : m_listMove) {
+
+		/// Reset stack
+		stack_count = 0;
+		stack[stack_count++] = m_root;
+
+		/// AABB Fat cần kiểm tra
+		const AABB& aabb = m_listNode[nodeQrID]->aabb;
 		
-		stack[0] = m_root;
-		c_stack = 1;
-		AABB aabb = m_listNode[i]->aabb;
-		
-		while (c_stack)
+		while (stack_count)
 		{
-			BPNode* node = m_listNode[stack[--c_stack]];
+			BPNode* node = m_listNode[stack[--stack_count]];
 			
 			if (aabb.Overlap(node->aabb)) {
 				
 				if (node->IsLeaf()) {
 
-					if (i == node->index) continue;
+					if (nodeQrID == node->index) continue;
 
 					list_pair.push_back(
 					{
-						yuh::min(i, node->index),
-						yuh::max(i, node->index)
+						yuh::min(nodeQrID, node->index),
+						yuh::max(nodeQrID, node->index)
 					}
 					);
 				}
 				else {
-					stack[c_stack++] = node->left;
-					stack[c_stack++] = node->right;
+					stack[stack_count++] = node->left;
+					stack[stack_count++] = node->right;
 				}
 			}
 		}

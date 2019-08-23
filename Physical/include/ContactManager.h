@@ -7,6 +7,16 @@
 S_NS_PHYSICAL
 ;
 
+/// Interface
+/// Lớp lắng nghe sự kiện tiếp xúc
+class YUH_API_PHYSICAL ContactListener {
+public:
+	virtual void BeginContact(Contact* contact) = 0;
+	virtual void EndContact(Contact* contact) = 0;
+
+};
+
+
 /// Lớp quản lý các vụ tiếp xúc
 /// Các Contact được lưu lại và được thêm mới thông qua FindNewPair
 /// Các Contact được loại bỏ thông qua Collide
