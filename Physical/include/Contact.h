@@ -6,7 +6,8 @@
 S_NS_PHYSICAL
 ;
 
-class Contact
+
+class YUH_API_PHYSICAL Contact
 {
 	friend class ContactManager;
 
@@ -17,6 +18,10 @@ public:
 
 	/// Va chạm kế tiếp
 	Contact*	GetNext();
+	Contact*	operator++(int);
+
+	/// Thông tin va chạm
+	const Manifold& GetManifold() const;
 
 
 private:
@@ -30,7 +35,17 @@ private:
 
 	ICollider* m_colliderA;
 	ICollider* m_colliderB;
+
+	Manifold m_manifold;
 };
+
+inline Contact* Contact::operator++(int) {
+	return m_next;
+}
+
+inline const Manifold& Contact::GetManifold() const {
+	return m_manifold;
+}
 
 E_NS
 

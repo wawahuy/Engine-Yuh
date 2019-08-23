@@ -12,7 +12,7 @@ Broadphase::~Broadphase()
 {
 }
 
-void Broadphase::ComputeAABBObject(BPNode *node)
+void Broadphase::ComputeFatAABB(BPNode *node)
 {
 	node->aabb = node->userdata->getAABB();
 	node->aabb.min.x -= MARGIN_PX_AABB;
@@ -40,13 +40,10 @@ void Broadphase::Add(ICollider * object)
 	node->userdata	= object;
 
 	/// Gán ID node cho userdata
-	object->nodeIndex = node->index;
+	object->m_nodeIndex = node->index;
 
 	/// Tính toán và vỗ béo aabb
-	ComputeAABBObject(node);
-
-	/// Gán node vào danh sách lá
-	m_listLeaf.push_back(node->index);
+	ComputeFatAABB(node);
 
 	/// Thêm vào danh sách xữ lí bộ đệm va chạm
 	m_listMove.push_back(node->index);
@@ -190,141 +187,42 @@ void Broadphase::Remove(ICollider * object)
 {
 }
 
-void Broadphase::Update()
+void Broadphase::Move(ICollider *object)
 {
-	if (!m_root) return;
-	BPNode* nodeRoot = m_listNode[m_root];
+	BPNode* node = m_listNode[object->m_nodeIndex];
+	AABB	aabbFat = node->aabb;
+	AABB	aabbObj = node->userdata->getAABB();
 
-	/// Khi chỉ có 1 node
-	if (nodeRoot->IsLeaf()) {
-		nodeRoot->aabb = nodeRoot->userdata->getAABB();
-	}
-	else {
+	if (aabbFat.Contains(aabbObj) == false) {
+		BPNode* nodeParent = m_listNode[node->parent];
+		BPNode* nodeSibling = m_listNode[nodeParent->left == node->index ? nodeParent->right : nodeParent->left];
 
-		/// Danh sách các node 'lá' thay đổi
-		m_listReinsert.clear();
+		/// Khi node cha là node lá của root
+		if (nodeParent->parent == BPNode::Null) {
+			m_root = nodeSibling->index;
+			nodeSibling->parent = BPNode::Null;
+		}
+		else {
+			BPNode* nodeParent2 = m_listNode[nodeParent->parent];
+			nodeSibling->parent = nodeParent2->index;
 
-		for (int nodeIndex : m_listLeaf) {
-			BPNode* node = m_listNode[nodeIndex];
-
-			/// Khểm tra object aabb có nằm trong node không
-			if (!node->aabb.Contains(node->userdata->getAABB())) {
-				m_listReinsert.push_back(nodeIndex);
-			}
+			if (nodeParent2->left == nodeParent->index)
+				nodeParent2->left = nodeSibling->index;
+			else
+				nodeParent2->right = nodeSibling->index;
 		}
 
-		/// Cập nhật lại các AABB
-		for (int nodeIndex : m_listReinsert) {
-			BPNode* node = m_listNode[nodeIndex];
-			BPNode* nodeParent = m_listNode[node->parent];
-			BPNode* nodeSibling = m_listNode[nodeParent->left == node->index ? nodeParent->right : nodeParent->left];
+		/// Reinsert
+		node->height = 0;
+		ComputeFatAABB(node);
+		InsertNode(node->index, nodeParent->index);
 
-			/// Khi node cha là node lá của root
-			if (nodeParent->parent == BPNode::Null) {
-				m_root = nodeSibling->index;
-				nodeSibling->parent = BPNode::Null;
-			}
-			else {
-				BPNode* nodeParent2 = m_listNode[nodeParent->parent];
-				nodeSibling->parent = nodeParent2->index;
+		/// Thêm vào danh sách node cập nhật
+		m_listMove.push_back(node->index);
 
-				if (nodeParent2->left == nodeParent->index)
-					nodeParent2->left = nodeSibling->index;
-				else
-					nodeParent2->right = nodeSibling->index;
-			}
-
-			/// Reinsert
-			node->height = 0;
-			ComputeAABBObject(node);
-			InsertNode(node->index, nodeParent->index);
-
-			/// Thêm vào danh sách node cập nhật
-			m_listMove.push_back(node->index);
-
-			/// Update height
-			RebuildBottomUp(nodeSibling->parent);
-
-			/// Xóa các bộ đệm va chạm
-			m_listCachePair.Remove(node->index);
-		}
+		/// Update height
+		RebuildBottomUp(nodeSibling->parent);
 	}
-
-
-}
-
-
-
-void Broadphase::QueryPair(int queryID, const AABB & aabb)
-{
-	int stack[256];
-	int cstack = 0;
-	stack[cstack++] = m_root;
-
-	while (cstack)
-	{
-		BPNode* node = m_listNode[stack[--cstack]];
-		if (aabb.Overlap(node->aabb)) {
-			if (node->IsLeaf()) {
-
-				/// Pair cùng một đối tượng
-				if (queryID == node->index) continue;
-
-				/// Thêm vào danh sách va chạm
-				m_listCachePair.Add(queryID, node->index);
-			}
-			else {
-				stack[cstack++] = node->left;
-				stack[cstack++] = node->right;
-			}
-		}
-	}
-}
-
-void Broadphase::ComputePair(std::vector<IColliderPair>& outListColliderPair)
-{
-	/// Truy vấn va chạm
-	for (int i : m_listMove) {
-		QueryPair(i, m_listNode[i]->aabb);
-	}
-
-
-	AVLNode<PTNode> *stackA[2560];
-	AVLNode<CPTNode> *stackB[2560];
-
-	int cstackA = 0;
-	stackA[cstackA++] = m_listCachePair.GetRoot();
-
-	outListColliderPair.reserve(m_listCachePair.m_numPair/2);
-
-	while (cstackA)
-	{
-		AVLNode<PTNode> *node = stackA[--cstackA];
-
-		if (node) {
-			stackA[cstackA++] = node->left;
-			stackA[cstackA++] = node->right;
-
-			int cstackB = 0;
-			stackB[cstackB++] = node->data.pair.GetRoot();
-			while (cstackB)
-			{
-				AVLNode<CPTNode> *nodePair = stackB[--cstackB];
-
-				if (nodePair) {
-					stackB[cstackB++] = nodePair->left;
-					stackB[cstackB++] = nodePair->right;
-
-					outListColliderPair.push_back({
-						m_listNode[node->data.value]->userdata,
-						m_listNode[nodePair->data.value]->userdata
-					});
-				}
-			}
-		}
-	}
-
-	m_listMove.clear();
 }
 
 void Broadphase::QueryAllAABB(const AABB & aabb, std::vector<AABB*>& outListAABB, std::vector<ICollider*>& outListCollide)
@@ -407,16 +305,5 @@ int Broadphase::GetNumNode()
 {
 	return m_listNode.size();
 }
-
-int Broadphase::GetNumPairCache()
-{
-	return 0;
-}
-
-PairTree & Broadphase::GetPairCacheTree()
-{
-	return m_listCachePair;
-}
-
 
 E_NS

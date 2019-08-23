@@ -10,7 +10,7 @@ S_NS_PHYSICAL
 /// Lớp quản lý các vụ tiếp xúc
 /// Các Contact được lưu lại và được thêm mới thông qua FindNewPair
 /// Các Contact được loại bỏ thông qua Collide
-class ContactManager
+class YUH_API_PHYSICAL ContactManager
 {
 public:
 	ContactManager();
@@ -26,7 +26,7 @@ public:
 	void FindNewPair();
 
 	/// Tìm kiếm các vụ tiếp xúc rõ nhất, giải phóng các vụ tiếp xúc cũ
-	/// Middle-phase
+	/// Narrow-phase
 	void Collide();
 
 	/// Danh sách các vụ tiếp xúc
@@ -35,14 +35,33 @@ public:
 	/// Lấy broadphase object
 	Broadphase* GetBroadphase();
 
+	/// Số lượng contacts
+	size_t		GetNumContact();
 
 private:
 	/// Pha rộng
 	Broadphase	m_broadphase;
 
 	/// Danh sách vụ tiếp xúc
-	Contact*	m_contacts;
+	Contact*	m_contact_end;
+	Contact*	m_contact_begin;
+	size_t		m_contact_num;
 };
+
+inline Contact * ContactManager::GetContact()
+{
+	return m_contact_begin;
+}
+
+
+inline Broadphase * ContactManager::GetBroadphase()
+{
+	return &m_broadphase;
+}
+
+inline size_t ContactManager::GetNumContact() {
+	return m_contact_num;
+}
 
 E_NS
 
