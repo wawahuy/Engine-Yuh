@@ -37,6 +37,14 @@ private:
 	ICollider* m_colliderB;
 
 	Manifold m_manifold;
+
+	long m_flag;
+
+	enum FlagContact {
+		
+		/// Báo hiệu đã gọi BeginContact
+		touch = 0x000001
+	};
 };
 
 inline Contact* Contact::operator++(int) {

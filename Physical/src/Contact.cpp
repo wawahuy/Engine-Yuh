@@ -25,6 +25,7 @@ Contact::Contact(ICollider * A, ICollider * B)
 	m_colliderB = B;
 	m_prev = NULL;
 	m_next = NULL;
+	m_flag = 0x0;
 }
 
 Contact* Contact::Create(ICollider * A, ICollider * B)

@@ -24,9 +24,6 @@
     <ClInclude Include="include\Export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PairTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\ContactManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -42,9 +39,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Broadphase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PairTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ContactManager.cpp">

@@ -9,6 +9,7 @@ ContactManager::ContactManager()
 	m_contact_begin = NULL;
 	m_contact_end = NULL;
 	m_contact_num = 0;
+	m_listener = NULL;
 }
 
 
@@ -54,6 +55,12 @@ void ContactManager::Destroy(Contact * contact)
 	ICollider *colliderA = contact->m_colliderA;
 	ICollider *colliderB = contact->m_colliderB;
 
+	/// Gọi event
+	bool is_touch = contact->m_flag & Contact::FlagContact::touch;
+	if (is_touch && m_listener) {
+		m_listener->EndContact(contact);
+	}
+
 	/// Xóa contact trên collider A
 	colliderA->m_listContact.RemoveValue({ colliderB });
 
@@ -83,8 +90,10 @@ void ContactManager::Collide()
 	Contact *contact = m_contact_begin;
 	while (contact)
 	{
-		int iA = contact->m_colliderA->m_nodeIndex;
-		int iB = contact->m_colliderB->m_nodeIndex;
+		ICollider *colliderA = contact->m_colliderA;
+		ICollider *colliderB = contact->m_colliderB;
+		int iA = colliderA->m_nodeIndex;
+		int iB = colliderB->m_nodeIndex;
 
 		if (m_broadphase.TestOverlap(iA, iB) == false) {
 			Contact* tmpDel = contact;
@@ -93,8 +102,33 @@ void ContactManager::Collide()
 			continue;
 		}
 
+		bool is_touch = contact->m_flag & Contact::FlagContact::touch;
+
+		/// Kiểm tra narrow-phase
+		if (colliderA->collide(colliderB, contact->m_manifold)) {
+
+			/// Event touch
+ 			if (is_touch == false && m_listener) {
+				contact->m_flag |= Contact::FlagContact::touch;
+				m_listener->BeginContact(contact);
+			}
+		}
+		else {
+
+			/// Event touch
+			if (is_touch && m_listener) {
+				contact->m_flag ^= Contact::FlagContact::touch;
+				m_listener->EndContact(contact);
+			}
+		}
+
 		contact = contact->m_next;
 	}
+}
+
+void ContactManager::SetListener(ContactListener * cb)
+{
+	m_listener = cb;
 }
 
 E_NS

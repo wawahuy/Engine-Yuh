@@ -2,7 +2,6 @@
 #include <vector>
 #include <algorithm>
 #include "Export.h"
-#include "PairTree.h"
 #include "ICollider.h"
 
 

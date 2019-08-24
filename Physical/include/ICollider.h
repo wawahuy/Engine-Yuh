@@ -8,7 +8,7 @@ class Contact;
 class ICollider;
 
 /// Thông tin va chạm
-struct Manifold {
+struct Manifold { 
 	Vec2f	contact[2];
 	size_t	contact_count;
 	float	penetration;
@@ -53,7 +53,5 @@ private:
 	int m_nodeIndex;
 };
 
-
-typedef Pair<ICollider *, ICollider *>	IColliderPair;
 
 E_NS

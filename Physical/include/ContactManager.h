@@ -13,7 +13,6 @@ class YUH_API_PHYSICAL ContactListener {
 public:
 	virtual void BeginContact(Contact* contact) = 0;
 	virtual void EndContact(Contact* contact) = 0;
-
 };
 
 
@@ -48,6 +47,9 @@ public:
 	/// Số lượng contacts
 	size_t		GetNumContact();
 
+	/// Đặt sự kiện
+	void		SetListener(ContactListener* cb);
+
 private:
 	/// Pha rộng
 	Broadphase	m_broadphase;
@@ -56,6 +58,9 @@ private:
 	Contact*	m_contact_end;
 	Contact*	m_contact_begin;
 	size_t		m_contact_num;
+
+	/// Sự kiện va chạm
+	ContactListener* m_listener;
 };
 
 inline Contact * ContactManager::GetContact()
@@ -72,6 +77,7 @@ inline Broadphase * ContactManager::GetBroadphase()
 inline size_t ContactManager::GetNumContact() {
 	return m_contact_num;
 }
+
 
 E_NS
 
