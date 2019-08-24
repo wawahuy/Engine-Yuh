@@ -91,9 +91,9 @@ private:
 	void	 ComputeFatAABB(BPNode *node);
 	void	 RebuildBottomUp(int index);
 	
-	void	 Balance(int iA);
-	int		 RotateLeft(int iA);
-	int		 RotateRight(int iA);
+	BPNode*	 Balance(int iA);
+	BPNode*	 RotateLeft(int iA);
+	BPNode*	 RotateRight(int iA);
 
 	/// Node gốc
 	int						m_root;

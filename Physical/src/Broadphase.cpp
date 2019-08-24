@@ -146,25 +146,16 @@ void Broadphase::InsertNode(int indexInsert, int indexBranch)
 
 void Broadphase::RebuildBottomUp(int index)
 {
-	BPNode *node, *left, *right;
+	BPNode *node;
 
 	while (index != BPNode::Null)
 	{
-		node	= m_listNode[index];
-		left	= m_listNode[node->left];
-		right	= m_listNode[node->right];
-
-		/// Height
-		node->height = 1 + yuh::max(left->height, right->height);
-
-		/// AABB
-		node->aabb = left->aabb.Combine(right->aabb);
-
+		node  = Balance(index);
 		index = node->parent;
 	}
 }
 
-void Broadphase::Balance(int iA)
+BPNode* Broadphase::Balance(int iA)
 {
 	///			A
 	///		   / \
@@ -176,18 +167,126 @@ void Broadphase::Balance(int iA)
 
 	BPNode *nodeB = m_listNode[iB];
 	BPNode *nodeC = m_listNode[iC];
+	int u = nodeC->height - nodeB->height;
 
+	if (u > 1) {
+		BPNode *nodeCB = m_listNode[nodeC->left];
+		BPNode *nodeCC = m_listNode[nodeC->right];
+		if (nodeCC->height < nodeCB->height) {
+			nodeC = RotateRight(iC);
+		}
 
+		return RotateLeft(iA);
+	}
+	else if (u < -1) {
+		BPNode *nodeBB = m_listNode[nodeB->left];
+		BPNode *nodeBC = m_listNode[nodeB->right];
+		if (nodeBC->height > nodeBB->height) {
+			nodeB = RotateLeft(iB);
+		}
+		
+		return RotateRight(iA);;
+	}
+
+	/// Rebuild AABB & Height
+	nodeA->height = 1 + yuh::max(nodeB->height, nodeC->height);
+	nodeA->aabb = nodeB->aabb.Combine(nodeC->aabb);
+
+	return nodeA;
 }
 
-int Broadphase::RotateLeft(int iA)
+BPNode* Broadphase::RotateLeft(int iA)
 {
-	return 0;
+	BPNode *nA = m_listNode[iA];
+	
+	int iC = nA->right;
+	int iP = nA->parent;
+
+	BPNode *nC = m_listNode[iC];
+	
+	if (iP != BPNode::Null) {
+		BPNode *nP = m_listNode[iP];
+
+		if (nP->left == iA)
+			nP->left = iC;
+		else
+			nP->right = iC;
+
+		nC->parent = nP->index;
+	}
+	else {
+		nC->parent = BPNode::Null;
+		m_root = iC;
+	}
+
+	nA->right = nC->left;
+
+	if (nA->right != BPNode::Null) {
+		BPNode *nARight = m_listNode[nA->right];
+		nARight->parent = iA;
+	}
+
+	nC->left = iA;
+	nA->parent = iC;
+
+	/// Rebuild nodeA
+	BPNode *nAL = m_listNode[nA->left];
+	BPNode *nAR = m_listNode[nA->right];
+	nA->height = 1 + yuh::max(nAL->height, nAR->height);
+	nA->aabb = nAL->aabb.Combine(nAR->aabb);
+
+	/// Rebuild nodeB
+	BPNode *nCR = m_listNode[nC->right];
+	nC->height = 1 + yuh::max(nCR->height, nA->height);
+	nC->aabb = nCR->aabb.Combine(nA->aabb);
+
+	return nC;
 }
 
-int Broadphase::RotateRight(int iA)
+BPNode* Broadphase::RotateRight(int iA)
 {
-	return 0;
+	BPNode *nA = m_listNode[iA];
+
+	int iB = nA->left;
+	int iP = nA->parent;
+
+	BPNode *nB = m_listNode[iB];
+	nB->parent = iP;
+
+	if (iP != BPNode::Null) {
+		BPNode *nP = m_listNode[iP];
+
+		if (nP->left == iA)
+			nP->left = iB;
+		else
+			nP->right = iB;
+	}
+	else {
+		m_root = iB;
+	}
+
+	nA->left = nB->right;
+
+	if (nA->left != BPNode::Null) {
+		BPNode *nALeft = m_listNode[nA->left];
+		nALeft->parent = iA;
+	}
+
+	nB->right = iA;
+	nA->parent = iB;
+
+	/// Rebuild nodeA
+	BPNode *nAL = m_listNode[nA->left];
+	BPNode *nAR = m_listNode[nA->right];
+	nA->height = 1 + yuh::max(nAL->height, nAR->height);
+	nA->aabb = nAL->aabb.Combine(nAR->aabb);
+
+	/// Rebuild nodeB
+	BPNode *nBL = m_listNode[nB->left];
+	nB->height = 1 + yuh::max(nBL->height, nA->height);
+	nB->aabb = nBL->aabb.Combine(nA->aabb);
+
+	return nB;
 }
 
 void Broadphase::Remove(ICollider * object)

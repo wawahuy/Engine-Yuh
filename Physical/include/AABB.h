@@ -27,6 +27,10 @@ public:
 	float Area();
 };
 
+inline float AABB::Area()
+{
+	return (max.x - min.x)*(max.y - min.y);
+}
 
 E_NS
 
