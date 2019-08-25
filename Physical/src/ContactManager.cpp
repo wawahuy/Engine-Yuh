@@ -56,8 +56,7 @@ void ContactManager::Destroy(Contact * contact)
 	ICollider *colliderB = contact->m_colliderB;
 
 	/// Gọi event
-	bool is_touch = contact->m_flag & Contact::FlagContact::touch;
-	if (is_touch && m_listener) {
+	if (contact->IsTouching() && m_listener) {
 		m_listener->EndContact(contact);
 	}
 
@@ -102,25 +101,33 @@ void ContactManager::Collide()
 			continue;
 		}
 
-		bool is_touch = contact->m_flag & Contact::FlagContact::touch;
+		bool touching = false;
+		bool wasTouching = contact->m_flag & Contact::FlagContact::touch;
 
 		/// Kiểm tra narrow-phase
-		if (colliderA->collide(colliderB, contact->m_manifold)) {
+		touching = colliderA->collide(colliderB, contact->m_manifold);
 
-			/// Event touch
- 			if (is_touch == false && m_listener) {
+		
+
+		if (touching && wasTouching == false)
+		{
+			contact->m_manifold.colliderA = colliderA;
+			contact->m_manifold.colliderB = colliderB;
+			contact->m_manifold.c = contact;
+
+			if (m_listener)
+			{
 				contact->m_flag |= Contact::FlagContact::touch;
 				m_listener->BeginContact(contact);
 			}
 		}
-		else {
 
-			/// Event touch
-			if (is_touch && m_listener) {
-				contact->m_flag ^= Contact::FlagContact::touch;
-				m_listener->EndContact(contact);
-			}
+
+		if (touching == false && wasTouching && m_listener) {
+			contact->m_flag ^= Contact::FlagContact::touch;
+			m_listener->EndContact(contact);
 		}
+
 
 		contact = contact->m_next;
 	}
@@ -129,6 +136,21 @@ void ContactManager::Collide()
 void ContactManager::SetListener(ContactListener * cb)
 {
 	m_listener = cb;
+}
+
+void ContactManager::Free()
+{
+	/// Free broadphase
+	m_broadphase.Free();
+
+	/// Free contact
+	Contact *contact = m_contact_begin;
+	while (contact)
+	{
+		Contact::Destroy(contact);
+		contact = contact->m_next;
+	}
+
 }
 
 E_NS

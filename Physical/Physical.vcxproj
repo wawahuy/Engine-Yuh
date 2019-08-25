@@ -114,14 +114,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Body.h" />
     <ClInclude Include="include\Contact.h" />
     <ClInclude Include="include\ContactManager.h" />
     <ClInclude Include="include\AABB.h" />
     <ClInclude Include="include\Broadphase.h" />
     <ClInclude Include="include\Export.h" />
     <ClInclude Include="include\ICollider.h" />
+    <ClInclude Include="include\Manifold.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Body.cpp" />
     <ClCompile Include="src\Contact.cpp" />
     <ClCompile Include="src\ContactManager.cpp" />
     <ClCompile Include="src\Broadphase.cpp" />

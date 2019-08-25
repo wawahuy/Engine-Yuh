@@ -23,6 +23,8 @@ public:
 	/// Thông tin va chạm
 	const Manifold& GetManifold() const;
 
+	bool IsTouching();
+
 
 private:
 	Contact(ICollider * A, ICollider * B);
@@ -53,6 +55,10 @@ inline Contact* Contact::operator++(int) {
 
 inline const Manifold& Contact::GetManifold() const {
 	return m_manifold;
+}
+
+inline bool Contact::IsTouching() {
+	return m_flag & FlagContact::touch;
 }
 
 E_NS

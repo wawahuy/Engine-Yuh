@@ -33,6 +33,12 @@
     <ClInclude Include="include\Contact.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Manifold.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AABB.cpp">
@@ -45,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Contact.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

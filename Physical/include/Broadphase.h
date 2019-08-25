@@ -77,6 +77,8 @@ public:
 	/// Tìm kiếm các vụ va chạm qua các đối tượng di chuyển
 	template<class T> void UpdatePair(T* contactManager);
 
+	/// Giải phóng
+	void Free();
 
 	/// Get
 	int GetHeight();

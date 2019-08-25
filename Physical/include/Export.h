@@ -21,3 +21,8 @@
 /// Class: Broadphase
 /// Hệ số vận tốc để mở rộng độ lớn node
 #define MARGIN_FACTOR_VELOCITY_AABB 2.0f
+
+
+/// File: Manifold.h
+/// Số điểm giao cắt tối đã giữa 2 Collider
+#define MANIFOLD_NUM_MAX 2

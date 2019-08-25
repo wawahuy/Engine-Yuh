@@ -1,19 +1,12 @@
 ﻿#pragma once
 #include "AABB.h"
 #include "AVLTree.h"
+#include "Manifold.h"
 
 S_NS_PHYSICAL
 
 class Contact;
 class ICollider;
-
-/// Thông tin va chạm
-struct Manifold { 
-	Vec2f	contact[2];
-	size_t	contact_count;
-	float	penetration;
-	Vec2f	normal;
-};
 
 
 /// Kết nối tiếp xúc trên Collider A với Collider B
@@ -32,7 +25,7 @@ inline bool operator<(const ContactConnect& c1, const ContactConnect& c2) {
 
 
 
-/// Interface
+/// Abstract
 /// Các đối tượng có thể va chạm cần được kế thừa ICollider
 /// Là một thành phần trong Broadphase
 /// Nó bao gồm việc xây dựng getAABB() quanh đối tượng, và getVelocity() là vận tốc đối tượng
@@ -41,6 +34,11 @@ class ICollider {
 	friend class ContactManager;
 
 public:
+	enum Type {
+		c_Circle,
+		c_Polygon
+	};
+
 	virtual AABB  getAABB() = 0;
 	virtual Vec2f getVelocity() = 0;
 	virtual bool  collide(ICollider* colider, Manifold& manifold) = 0;
@@ -52,6 +50,7 @@ private:
 	/// Chỉ số node trên Broadphase
 	int m_nodeIndex;
 };
+
 
 
 E_NS

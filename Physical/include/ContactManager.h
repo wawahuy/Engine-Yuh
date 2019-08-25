@@ -50,6 +50,8 @@ public:
 	/// Đặt sự kiện
 	void		SetListener(ContactListener* cb);
 
+	void Free();
+
 private:
 	/// Pha rộng
 	Broadphase	m_broadphase;

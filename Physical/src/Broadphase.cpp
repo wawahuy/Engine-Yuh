@@ -376,6 +376,13 @@ void Broadphase::Query(const AABB & aabb, std::vector<ICollider*>& outListCollid
 	}
 }
 
+void Broadphase::Free()
+{
+	for (BPNode *node : m_listNode) {
+		delete node;
+	}
+}
+
 int Broadphase::GetHeight()
 {
 	return m_listNode[m_root]->height;
