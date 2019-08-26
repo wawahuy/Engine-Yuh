@@ -24,6 +24,7 @@ void ContactManager::FindNewPair()
 
 void ContactManager::Add(ICollider * A, ICollider * B)
 {
+	/// Tìm kiếm 
 	auto node = A->m_listContact.FindNode({ B });
 
 	if (node && *node) {
@@ -44,8 +45,10 @@ void ContactManager::Add(ICollider * A, ICollider * B)
 	}
 
 	/// Thêm contact vào danh sách kết nối trên A
-	/// Không thêm trên B vì chỉ cần xét trên 1 nhánh
 	A->m_listContact.AddValue({B, contact});
+
+	/// Thêm contact vào danh sách kêt nối trên B
+	B->m_listContact.AddValue({ A, contact });
 
 	++m_contact_num;
 }
@@ -62,6 +65,10 @@ void ContactManager::Destroy(Contact * contact)
 
 	/// Xóa contact trên collider A
 	colliderA->m_listContact.RemoveValue({ colliderB });
+
+	/// Xóa contact trên collider B
+	colliderB->m_listContact.RemoveValue({ colliderA });
+
 
 	/// Xóa contact trên danh sách
 	if (contact->m_prev) {
@@ -93,6 +100,15 @@ void ContactManager::Collide()
 		ICollider *colliderB = contact->m_colliderB;
 		int iA = colliderA->m_nodeIndex;
 		int iB = colliderB->m_nodeIndex;
+		Body* bodyA = colliderA->m_body;
+		Body* bodyB = colliderB->m_body;
+
+		if (bodyA == bodyB || bodyA->m_active == false || bodyB->m_active == false) {
+			Contact* tmpDel = contact;
+			contact = contact->m_next;
+			Destroy(tmpDel);
+			continue;
+		}
 
 		if (m_broadphase.TestOverlap(iA, iB) == false) {
 			Contact* tmpDel = contact;
@@ -106,8 +122,6 @@ void ContactManager::Collide()
 
 		/// Kiểm tra narrow-phase
 		touching = colliderA->collide(colliderB, contact->m_manifold);
-
-		
 
 		if (touching && wasTouching == false)
 		{

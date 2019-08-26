@@ -52,10 +52,11 @@ void operator*=(Vec2<T>& a, const Vec2<T>& b) {
 
 //a/=
 template<typename T>
-void operator/=(Vec2<T>& a, const Vec2<T>& b) {
-	a.x *= b.y;
-	a.y *= b.x;
+void operator/=(Vec2<T>& a, T b) {
+	a.x /= b;
+	a.y /= b;
 }
+
 
 // a+b
 template<typename T>

@@ -123,6 +123,7 @@
     <ClInclude Include="include\Export.h" />
     <ClInclude Include="include\Collision\ICollider.h" />
     <ClInclude Include="include\Collision\Manifold.h" />
+    <ClInclude Include="include\World\World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\World\Body.cpp" />
@@ -131,6 +132,7 @@
     <ClCompile Include="src\Contact\ContactManager.cpp" />
     <ClCompile Include="src\World\Broadphase.cpp" />
     <ClCompile Include="src\Common\AABB.cpp" />
+    <ClCompile Include="src\World\World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

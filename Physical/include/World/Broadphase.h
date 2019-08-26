@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include "../Export.h"
-#include "../Collision/ICollider.h"
+#include "../World/Body.h"
 
 
 S_NS_PHYSICAL

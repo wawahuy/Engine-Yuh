@@ -5,9 +5,9 @@
 
 S_NS_PHYSICAL
 
+class Body;
 class Contact;
 class ICollider;
-class Body;
 
 /// Kết nối tiếp xúc trên Collider A với Collider B
 struct ContactConnect {
@@ -30,8 +30,10 @@ inline bool operator<(const ContactConnect& c1, const ContactConnect& c2) {
 /// Là một thành phần trong Broadphase
 /// Nó bao gồm việc xây dựng getAABB() quanh đối tượng, và getVelocity() là vận tốc đối tượng
 class ICollider {
+	friend class Body;
 	friend class Broadphase;
 	friend class ContactManager;
+	friend class CircleShape;
 
 public:
 	enum Type {
@@ -40,9 +42,8 @@ public:
 	};
 
 	virtual AABB  getAABB() = 0;
-	virtual Vec2f getVelocity() = 0;
 	virtual bool  collide(ICollider* colider, Manifold& manifold) = 0;
-
+	
 	Body* getBody();
 	Type  getType();
 
@@ -55,7 +56,12 @@ private:
 
 	/// Chỉ số node trên Broadphase
 	int m_nodeIndex;
+
+	/// List collider
+	ICollider* m_prev;
+	ICollider* m_next;
 };
+
 
 inline Body* ICollider::getBody() {
 	return m_body;
@@ -64,5 +70,6 @@ inline Body* ICollider::getBody() {
 inline ICollider::Type  ICollider::getType() {
 	return m_type;
 }
+
 
 E_NS
