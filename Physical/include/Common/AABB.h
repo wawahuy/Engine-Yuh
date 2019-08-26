@@ -10,7 +10,7 @@
 */
 
 
-#include "Export.h"
+#include "../Export.h"
 #include <YMath.h>
 #include <Vector3D.h>
 

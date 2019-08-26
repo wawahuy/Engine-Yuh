@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Export.h"
-#include "ICollider.h"
+#include "../Export.h"
+#include "../Collision/ICollider.h"
 
 
 S_NS_PHYSICAL

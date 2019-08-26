@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Export.h"
+#include "../Export.h"
 #include "Vector2D.h"
 
 S_NS_PHYSICAL

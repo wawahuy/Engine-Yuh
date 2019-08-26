@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "Export.h"
-#include "ICollider.h"
+#include "../Export.h"
+#include "../Collision/ICollider.h"
+
 
 S_NS_PHYSICAL
 ;
@@ -16,13 +17,21 @@ public:
 		b_Dynamic
 	};
 
-	/// Khởi tạo các thành phần va chạm trong Body
 	ICollider* CreateCollider(ICollider::Type type);
+
+	void SetType(Type type);
+	void SetActive(bool active);
+	Type GetType();
+	bool IsActive();
 
 
 private:
 	Body();
+	
+	Type	m_type;
+	bool	m_active;
 
+	/// Vât lý
 	Vec2f	m_position;
 	float	m_orient;		// quay (radian)
 
@@ -38,4 +47,24 @@ private:
 	float	m_dynamicFriction;
 };
 
+
+
+inline Body::Type Body::GetType() {
+	return m_type;
+}
+
+inline bool Body::IsActive() {
+	return m_active;
+}
+
+inline void Body::SetActive(bool active) {
+	m_active = active;
+}
+
+inline void Body::SetType(Body::Type type) {
+	m_type = type;
+}
+
 E_NS
+
+

@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <vector>
 #include <algorithm>
-#include "Export.h"
-#include "ICollider.h"
+#include "../Export.h"
+#include "../Collision/ICollider.h"
 
 
 S_NS_PHYSICAL

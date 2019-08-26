@@ -114,21 +114,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Body.h" />
-    <ClInclude Include="include\Contact.h" />
-    <ClInclude Include="include\ContactManager.h" />
-    <ClInclude Include="include\AABB.h" />
-    <ClInclude Include="include\Broadphase.h" />
+    <ClInclude Include="include\World\Body.h" />
+    <ClInclude Include="include\Collision\CircleShape.h" />
+    <ClInclude Include="include\Contact\Contact.h" />
+    <ClInclude Include="include\Contact\ContactManager.h" />
+    <ClInclude Include="include\Common\AABB.h" />
+    <ClInclude Include="include\World\Broadphase.h" />
     <ClInclude Include="include\Export.h" />
-    <ClInclude Include="include\ICollider.h" />
-    <ClInclude Include="include\Manifold.h" />
+    <ClInclude Include="include\Collision\ICollider.h" />
+    <ClInclude Include="include\Collision\Manifold.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Body.cpp" />
-    <ClCompile Include="src\Contact.cpp" />
-    <ClCompile Include="src\ContactManager.cpp" />
-    <ClCompile Include="src\Broadphase.cpp" />
-    <ClCompile Include="src\AABB.cpp" />
+    <ClCompile Include="src\World\Body.cpp" />
+    <ClCompile Include="src\Collision\CircleShape.cpp" />
+    <ClCompile Include="src\Contact\Contact.cpp" />
+    <ClCompile Include="src\Contact\ContactManager.cpp" />
+    <ClCompile Include="src\World\Broadphase.cpp" />
+    <ClCompile Include="src\Common\AABB.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

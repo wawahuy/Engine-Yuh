@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <vector>
-#include "Export.h"
-#include "Broadphase.h"
+#include "../Export.h"
+#include "../World/Broadphase.h"
 #include "Contact.h"
 
 S_NS_PHYSICAL

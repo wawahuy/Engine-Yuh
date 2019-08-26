@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "AABB.h"
+#include "../Common/AABB.h"
 #include "AVLTree.h"
 #include "Manifold.h"
 
@@ -7,7 +7,7 @@ S_NS_PHYSICAL
 
 class Contact;
 class ICollider;
-
+class Body;
 
 /// Kết nối tiếp xúc trên Collider A với Collider B
 struct ContactConnect {
@@ -43,7 +43,13 @@ public:
 	virtual Vec2f getVelocity() = 0;
 	virtual bool  collide(ICollider* colider, Manifold& manifold) = 0;
 
+	Body* getBody();
+	Type  getType();
+
 private:
+	Body *m_body;
+	Type  m_type;
+
 	/// Danh sách tiếp xúc với ICollider còn lại
 	AVLTree<ContactConnect> m_listContact;
 
@@ -51,6 +57,12 @@ private:
 	int m_nodeIndex;
 };
 
+inline Body* ICollider::getBody() {
+	return m_body;
+}
 
+inline ICollider::Type  ICollider::getType() {
+	return m_type;
+}
 
 E_NS
