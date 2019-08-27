@@ -33,6 +33,13 @@ public:
 	void SetActive(bool active);
 	bool IsActive();
 
+	void  SetPosition(const Vec2f& p);
+	Vec2f GetPosition();
+
+	void  SetOrient(float o);
+	float GetOrient();
+
+
 private:
 	Body();
 
@@ -44,20 +51,11 @@ private:
 	Type	m_type;
 	bool	m_active;
 
-	/// Vât lý
-	Vec2f	m_position;
-	float	m_orient;		// quay (radian)
+	/// cập nhật trên broadphase
+	bool	m_isChange;
 
-	Vec2f	m_veclocity;
-	Vec2f	m_force;
-	float	m_torque;
-
-	float	m_mass;
-	float	m_inv_mass;		// nghịch đảo khối lượng
-
-	float	m_restitution;
-	float	m_staticFriction;
-	float	m_dynamicFriction;
+	/// Ma trận dịch chuyển
+	Tranform m_tfx;
 
 	/// List Collider
 	ICollider* m_collider_begin;
@@ -76,6 +74,28 @@ inline Body::Type Body::GetType() {
 
 inline bool Body::IsActive() {
 	return m_active;
+}
+
+inline void Body::SetPosition(const Vec2f & p)
+{
+	m_isChange = true;
+	m_tfx.m_position = p;
+}
+
+inline Vec2f Body::GetPosition()
+{
+	return m_tfx.m_position;
+}
+
+inline void Body::SetOrient(float o)
+{
+	m_isChange = true;
+	m_tfx.SetAngle(o);
+}
+
+inline float Body::GetOrient()
+{
+	return m_tfx.GetAngle();
 }
 
 inline void Body::SetActive(bool active) {

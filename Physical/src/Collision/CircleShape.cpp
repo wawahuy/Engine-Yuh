@@ -4,20 +4,30 @@
 S_NS_PHYSICAL
 ;
 
+CircleShape::CircleShape()
+{
+	m_position = Vec2f(0, 0);
+}
+
 AABB CircleShape::getAABB()
 {
-	yuh::physical::AABB aabb;
-	aabb.max = m_body->m_position + yuh::Vec2f(m_radius, m_radius);
-	aabb.min = m_body->m_position - yuh::Vec2f(m_radius, m_radius);
+	Vec2f p = m_body->m_tfx*m_position;
+	AABB aabb;
+	aabb.max = p + yuh::Vec2f(m_radius, m_radius);
+	aabb.min = p - yuh::Vec2f(m_radius, m_radius);
 	return aabb;
 }
 
 bool CircleShape::collide(ICollider * B, Manifold & mf)
 {
-	Vec2f posA = m_body->m_position;
-	Vec2f posB = B->m_body->m_position;
+	CircleShape *cirB = (CircleShape*)B;
+	Body *bdA = m_body;
+	Body *bdB = cirB->m_body;
+
+	Vec2f posA = bdA->m_tfx*m_position;
+	Vec2f posB = bdB->m_tfx*cirB->m_position;
 	float rA = m_radius;
-	float rB = ((CircleShape*)B)->m_radius;
+	float rB = cirB->m_radius;
 
 	Vec2f normal = posB - posA;
 	float distanceSquare = normal*normal;

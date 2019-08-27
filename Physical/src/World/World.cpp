@@ -14,7 +14,22 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 {
 	m_contact_manager.FindNewPair();
 	m_contact_manager.Collide();
+
+	for (auto body = m_body_begin; body; body = body->m_next) {
+		for (auto collider = body->m_collider_begin; collider; collider = collider->m_next) {
+
+			/// Change when set
+			if (collider->m_isChange || body->m_isChange) {
+				m_contact_manager.m_broadphase.Move(collider);
+				collider->m_isChange = false;
+			}
+
+		}
+
+		body->m_isChange = false;
+	}
 }
+
 
 Body * World::CreateBody()
 {
@@ -66,6 +81,38 @@ void World::SetGravity(const Vec2f& gravity)
 Vec2f World::GetGravity()
 {
 	return m_gravity;
+}
+
+void World::SetDrawDebug(IDrawDebug * debug)
+{
+	m_drawDebug = debug;
+}
+
+void World::DrawDebug(const AABB& clip)
+{
+	Broadphase *bp = m_contact_manager.GetBroadphase();
+
+	std::vector<ICollider *> list_collider;
+	std::vector<AABB *> list_aabb;
+	bp->QueryAllAABB(clip, list_aabb, list_collider);
+
+	for (auto collider : list_collider) {
+		switch (collider->m_type)
+		{
+		case ICollider::c_Circle: 
+		{
+			CircleShape* c = (CircleShape*)collider;
+			Vec2f p = c->m_body->m_tfx*c->m_position;
+			m_drawDebug->DrawCircle(p, c->m_radius);
+			break;
+		}
+
+		case ICollider::c_Polygon:
+			break;
+		}
+	}
+
+
 }
 
 

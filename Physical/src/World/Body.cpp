@@ -20,6 +20,7 @@ ICollider * Body::CreateCollider(ICollider::Type type)
 		break;
 	}
 
+	collider->m_body = this;
 	collider->m_next = NULL;
 
 	if (m_collider_end) {
@@ -31,6 +32,11 @@ ICollider * Body::CreateCollider(ICollider::Type type)
 	}
 
 	m_collider_end = collider;
+
+	
+	/// Thêm vào broadphase
+	m_world->m_contact_manager.m_broadphase.Add(collider);
+
 
 	return collider;
 }
@@ -78,6 +84,9 @@ void Body::Destroy(ICollider * collider)
 		}
 	}
 
+	/// Xóa khỏi broadphae
+	m_world->m_contact_manager.m_broadphase.Remove(collider);
+
 	delete collider;
 }
 
@@ -85,20 +94,7 @@ Body::Body()
 {
 	m_type = b_Dynamic;
 	m_active = true;
-	m_position = Vec2f(0, 0);
-	m_orient = 0;		
-
-	m_veclocity = Vec2f(0, 0);
-	m_force = Vec2f(0, 0);
-	m_torque = 0;
-
-	m_mass = 0;
-	m_inv_mass = 1;		
-
-	m_restitution = 0;
-	m_staticFriction = 0;
-	m_dynamicFriction = 0;
-
+	m_isChange = false;
 	m_collider_begin = NULL;
 	m_collider_end = NULL;
 }
@@ -134,6 +130,10 @@ void Body::Free()
 
 		ICollider *temp = collider;
 		collider = collider->m_next;
+
+		/// Xóa khỏi broadphae
+		m_world->m_contact_manager.m_broadphase.Remove(temp);
+
 		delete temp;
 	}
 }

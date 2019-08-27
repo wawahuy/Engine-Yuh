@@ -21,6 +21,9 @@ public:
 /// Các Contact được loại bỏ thông qua Collide
 class YUH_API_PHYSICAL ContactManager
 {
+	friend class Body;
+	friend class World;
+
 public:
 	ContactManager();
 	~ContactManager();

@@ -114,6 +114,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Common\Tranform.h" />
     <ClInclude Include="include\World\Body.h" />
     <ClInclude Include="include\Collision\CircleShape.h" />
     <ClInclude Include="include\Contact\Contact.h" />

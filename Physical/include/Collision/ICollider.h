@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../Common/AABB.h"
+#include "../Common/Tranform.h"
 #include "AVLTree.h"
 #include "Manifold.h"
 
@@ -34,8 +35,11 @@ class ICollider {
 	friend class Broadphase;
 	friend class ContactManager;
 	friend class CircleShape;
+	friend class World;
 
 public:
+	ICollider();
+
 	enum Type {
 		c_Circle,
 		c_Polygon
@@ -46,6 +50,21 @@ public:
 	
 	Body* getBody();
 	Type  getType();
+
+	/// Test On Public
+	Vec2f	m_veclocity;
+	Vec2f	m_force;
+	float	m_torque;
+
+	float	m_mass;
+	float	m_inv_mass;
+
+	float	m_restitution;
+	float	m_staticFriction;
+	float	m_dynamicFriction;
+
+protected:
+	bool  m_isChange;
 
 private:
 	Body *m_body;
@@ -60,8 +79,26 @@ private:
 	/// List collider
 	ICollider* m_prev;
 	ICollider* m_next;
+
+	
 };
 
+
+inline ICollider::ICollider()
+{
+	m_veclocity = Vec2f(0, 0);
+	m_force = Vec2f(0, 0);
+	m_torque = 0;
+
+	m_mass = 0;
+	m_inv_mass = 1;
+
+	m_restitution = 0;
+	m_staticFriction = 0;
+	m_dynamicFriction = 0;
+
+	m_isChange = false;
+}
 
 inline Body* ICollider::getBody() {
 	return m_body;

@@ -1,10 +1,19 @@
-#pragma once
+﻿#pragma once
 #include "Body.h"
 #include "../Contact/ContactManager.h"
 
 S_NS_PHYSICAL
 ;
 
+/// Lớp vẽ gỡ lỗi
+class IDrawDebug {
+public:
+	virtual void DrawCircle(Vec2f position, float radius) = 0;
+	virtual void DrawAABB(Vec2f min, Vec2f max) = 0;
+};
+
+
+/// Lớp quản ý tấc cả các đối tượng vật lý trong thế giới
 class YUH_API_PHYSICAL World {
 	friend class ContactManager;
 	friend class Body;
@@ -20,10 +29,15 @@ public:
 	void  SetGravity(const Vec2f& gravity);
 	Vec2f GetGravity();
 
+	void SetDrawDebug(IDrawDebug* debug);
+	void DrawDebug(const AABB& clip);
+
 	ContactManager* GetContactManager();
 
 private:
 	ContactManager m_contact_manager;
+
+	IDrawDebug* m_drawDebug;
 
 	Vec2f m_gravity;
 

@@ -20,7 +20,7 @@ void Broadphase::ComputeFatAABB(BPNode *node)
 	node->aabb.max.x += MARGIN_PX_AABB;
 	node->aabb.max.y += MARGIN_PX_AABB;
 
-	Vec2f vel = node->userdata->m_body->m_veclocity*((float)MARGIN_FACTOR_VELOCITY_AABB);
+	Vec2f vel = node->userdata->m_veclocity*((float)MARGIN_FACTOR_VELOCITY_AABB);
 
 	if (vel.x > 0)
 		node->aabb.max.x += vel.x;
@@ -300,6 +300,12 @@ void Broadphase::Move(ICollider *object)
 	const AABB& aabbObj = node->userdata->getAABB();
 
 	if (aabbFat.Contains(aabbObj) == false) {
+
+		if (node->parent == BPNode::Null) {
+			ComputeFatAABB(node);
+			return;
+		}
+
 		BPNode* nodeParent = m_listNode[node->parent];
 		BPNode* nodeSibling = m_listNode[nodeParent->left == node->index ? nodeParent->right : nodeParent->left];
 
@@ -339,7 +345,11 @@ void Broadphase::QueryAllAABB(const AABB & aabb, std::vector<AABB*>& outListAABB
 
 	while (cstack)
 	{
-		BPNode* node = m_listNode[stack[--cstack]];
+		int index = stack[--cstack];
+		if (index == BPNode::Null)
+			continue;
+
+		BPNode* node = m_listNode[index];
 		if (aabb.Overlap(node->aabb)) {
 			outListAABB.push_back(&node->aabb);
 			if (node->IsLeaf()) {
