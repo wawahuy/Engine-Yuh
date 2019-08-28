@@ -10,6 +10,7 @@ S_NS_PHYSICAL
 class YUH_API_PHYSICAL Contact
 {
 	friend class ContactManager;
+	friend class World;
 
 public:
 	/// Cặp đối tượng va chạm

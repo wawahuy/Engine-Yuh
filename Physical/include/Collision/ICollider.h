@@ -51,17 +51,9 @@ public:
 	Body* getBody();
 	Type  getType();
 
-	/// Test On Public
-	Vec2f	m_veclocity;
-	Vec2f	m_force;
-	float	m_torque;
-
-	float	m_mass;
-	float	m_inv_mass;
-
+	float	m_density;
 	float	m_restitution;
-	float	m_staticFriction;
-	float	m_dynamicFriction;
+	float	m_friction;
 
 protected:
 	bool  m_isChange;
@@ -79,23 +71,13 @@ private:
 	/// List collider
 	ICollider* m_prev;
 	ICollider* m_next;
-
-	
 };
 
 
 inline ICollider::ICollider()
 {
-	m_veclocity = Vec2f(0, 0);
-	m_force = Vec2f(0, 0);
-	m_torque = 0;
-
-	m_mass = 0;
-	m_inv_mass = 1;
-
 	m_restitution = 0;
-	m_staticFriction = 0;
-	m_dynamicFriction = 0;
+
 
 	m_isChange = false;
 }

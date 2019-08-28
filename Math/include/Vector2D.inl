@@ -82,10 +82,16 @@ Vec2<T> operator*(const Vec2<T>& a, T b) {
 	return Vec2<T>(a.x * b, a.y * b);
 }
 
+// vector/number
+template<typename T>
+Vec2<T> operator/(const Vec2<T>& a, T b) {
+	return Vec2<T>(a.x / b, a.y / b);
+}
+
 // number*vector
 template<typename T>
 Vec2<T> operator*(T a, const Vec2<T>& b) {
-	return Vec2<T>(a * b.b.x, a * b.y);
+	return Vec2<T>(a * b.x, a * b.y);
 }
 
 
@@ -127,6 +133,11 @@ float VectorCross(const Vec2<T>& v1, const Vec2<T>& v2) {
 	return v1.x*v2.y - v1.y*v2.x;
 }
 
+
+template<typename T>
+float VectorCorner(const Vec2<T>& v1, const Vec2<T>& v2) {
+	return acosf((v1*v2) / (VectorLength(v1)*VectorLength(v2)));
+}
 
 /* Print Vector
  *

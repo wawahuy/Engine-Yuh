@@ -20,7 +20,7 @@ void Broadphase::ComputeFatAABB(BPNode *node)
 	node->aabb.max.x += MARGIN_PX_AABB;
 	node->aabb.max.y += MARGIN_PX_AABB;
 
-	Vec2f vel = node->userdata->m_veclocity*((float)MARGIN_FACTOR_VELOCITY_AABB);
+	Vec2f vel = node->userdata->m_body->m_linearVelocity*((float)MARGIN_FACTOR_VELOCITY_AABB);
 
 	if (vel.x > 0)
 		node->aabb.max.x += vel.x;

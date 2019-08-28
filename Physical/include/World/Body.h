@@ -39,6 +39,12 @@ public:
 	void  SetOrient(float o);
 	float GetOrient();
 
+	Vec2f	m_force;
+	float	m_torque;
+	float	m_mass;
+	float	m_invMass;
+	float	m_inertia;
+	float	m_invInertia;
 
 private:
 	Body();
@@ -56,6 +62,10 @@ private:
 
 	/// Ma trận dịch chuyển
 	Tranform m_tfx;
+
+	/// Vận tốc
+	Vec2f  m_linearVelocity;
+	float  m_angularVelocity;
 
 	/// List Collider
 	ICollider* m_collider_begin;

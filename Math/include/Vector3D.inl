@@ -123,7 +123,7 @@ Vec3<T> VectorCross(const Vec3<T>& v1, const Vec3<T>& v2) {
 
 template<typename T>
 float VectorCorner(const Vec3<T>& v1, const Vec3<T>& v2) {
-	return (v1*v2) / (VectorLength(v1)*VectorLength(v2));
+	return acosf((v1*v2) / (VectorLength(v1)*VectorLength(v2)));
 }
 
 

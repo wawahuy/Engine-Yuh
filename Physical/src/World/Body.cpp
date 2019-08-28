@@ -97,6 +97,15 @@ Body::Body()
 	m_isChange = false;
 	m_collider_begin = NULL;
 	m_collider_end = NULL;
+
+	m_linearVelocity = Vec2f(0, 0);
+	m_angularVelocity = 0.0f;
+	m_force = Vec2f(0, 0);
+	m_torque = 0.0f;
+	m_mass = 0.0f;
+	m_invMass = 0.0f;
+	m_inertia = 0.0f;
+	m_invInertia = 0.0f;
 }
 
 void Body::Free()
