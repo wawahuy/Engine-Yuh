@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 #include <World/World.h>
 using namespace yuh;
 
@@ -20,12 +20,32 @@ public:
 		m_vao.append(sf::Vertex({ 1.0f, 0.0f }, color));
 	}
 
+	void setColor(const sf::Color& color) {
+		int s = m_vao.getVertexCount();
+		for (int i = 0; i < s; i++) {
+			m_vao[i].color = color;
+		}
+	}
+
 	void Set(const sf::Vector2f& p, const sf::Vector2f& normal, float length) {
-		const Vec2f xAxis(1, 0);
-		float angle = VectorCorner({ normal.x, normal.y }, xAxis) * 180 / 3.14;
-		setPosition(p);
-		setScale(length, length > 10 ? 10 : length);
-		setRotation(angle);
+		Vec2f axisX = Vec2f( normal.x, normal.y );
+		Vec2f axisY = { -axisX.y,  axisX.x};
+
+		axisX *= length;
+		axisY *= length < 6 ? 2 : length / 3;
+
+		/// Ma trận hàng
+		float* matrix = (float*)this->getTransform().getMatrix();
+		
+		/// i = [ 0(x),  1(y), 2.., 3..]
+		/// j = [ 4(x),  5(y), 6.., 7..]
+		/// w = [12(x), 13(y), ........]
+		matrix[0] =  axisX.x;
+		matrix[1] =  axisX.y;
+		matrix[4] =  axisY.x;
+		matrix[5] =  axisY.y;
+		matrix[12] = p.x;
+		matrix[13] = p.y;
 	}
 	
 private:
@@ -53,43 +73,89 @@ public:
 		m_aabb.setFillColor(sf::Color::Transparent);
 		m_aabb.setOutlineColor(sf::Color(0, 40, 0));
 		m_aabb.setOutlineThickness(1);
+
+		m_point.setFillColor(sf::Color::Blue);
+		m_point.setSize({4, 4});
+		m_point.setOrigin({ 2,2 });
+
+		float* matrix = (float*)m_coord.getMatrix();
+		matrix[5] = -1;
+		matrix[13] = HEIGHT;
 	}
 
 	void DrawCircle(const Vec2f& position, float radius) {
 		m_circle.setRadius(radius);
-		m_circle.setPosition({position.x, HEIGHT - position.y}); 
+		m_circle.setPosition({position.x, position.y}); 
 		m_circle.setOrigin(radius, radius);
-		m_render->draw(m_circle);
+		m_render->draw(m_circle, m_coord);
 	}
 
 	void DrawAABB(const Vec2f& min, const Vec2f& max) {
 		Vec2f size = max - min;
 		m_aabb.setSize({ size.x, size.y });
-		m_aabb.setPosition(min.x, HEIGHT - max.y);
-		m_render->draw(m_aabb);
+		m_aabb.setPosition(min.x, min.y);
+		m_render->draw(m_aabb, m_coord);
 	}
 
 	void DrawLine(const Vec2f& pA, const Vec2f& pB) {
 		sf::VertexArray line;
 		line.setPrimitiveType(sf::Lines);
-		line.append(sf::Vertex({ pA.x, HEIGHT - pA.y }, sf::Color::Yellow));
-		line.append(sf::Vertex({ pB.x, HEIGHT - pB.y }, sf::Color::Yellow));
-		m_render->draw(line);
+		line.append(sf::Vertex({ pA.x, pA.y }, sf::Color::Cyan));
+		line.append(sf::Vertex({ pB.x, pB.y }, sf::Color::Cyan));
+		m_render->draw(line, m_coord);
 	}
 
 	void DrawArrow(const Vec2f& p, const Vec2f& n, float length) {
-		m_arrow.Set({ p.x, HEIGHT - p.y }, { n.x, n.y }, length);
-		m_render->draw(m_arrow);
+		m_arrow.Set({ p.x, p.y }, { n.x, n.y }, length);
+		m_render->draw(m_arrow, m_coord);
 	}
 
+	void DrawPoint(const Vec2f& p) {
+		m_point.setPosition({ p.x, p.y });
+		m_render->draw(m_point, m_coord);
+	}
 
+	void SetColor(int colorI) {
+		sf::Color color;
+
+		switch (colorI)
+		{
+		case 1:
+			color = sf::Color::Yellow;
+			m_arrow.setColor(color);
+			break;
+
+		case 2:
+			color = sf::Color(0, 40, 0);
+			m_aabb.setOutlineColor(color);
+			break;
+
+		case 3:
+			color = sf::Color::Red;
+			m_arrow.setColor(color);
+			break;
+
+		case 4:
+			color = sf::Color::Blue;
+			m_point.setFillColor(color);
+			break;
+
+		default:
+			color = sf::Color::White;
+			m_circle.setOutlineColor(color);
+			break;
+		}
+
+	}
 
 private:
 	sf::CircleShape		m_circle;
 	sf::RectangleShape	m_aabb;
+	sf::RectangleShape	m_point;
 	ArrowLine			m_arrow;
 	sf::RenderTarget*   m_render;
 	sf::Font*			m_font;
+	sf::Transform		m_coord;
 };
 
 
@@ -127,11 +193,11 @@ private:
 class ContactListener : public physical::ContactListener {
 public:
 	void BeginContact(physical::Contact* ct) {
-		std::cout << ct << " Begin\n";
+		/// std::cout << ct << " Begin\n";
 	}
 
 	void EndContact(physical::Contact* ct) {
-		std::cout << ct << " End\n";
+		/// std::cout << ct << " End\n";
 	}
 };
 
@@ -150,9 +216,11 @@ int main()
 	const float positionIterations = 6;
 	const float velocityIterations = 12;
 
+	DrawDebug debug(&window, &font);
+
 	physical::World world(Vec2f(0, -9.8f));
 	world.GetContactManager()->SetListener(new ContactListener());
-	world.SetDrawDebug(new DrawDebug(&window, &font));
+	world.SetDrawDebug(&debug);
 	
 	physical::AABB clipScreen;
 	clipScreen.max = { WIDTH, HEIGHT };
@@ -203,6 +271,27 @@ int main()
 				//cm->m_density = 28;	/// 2d => kg/m^2 = m/S
 				//cm->SetRadius(rm);
 				//cm->SetLocalPosition({ rm, 0 });
+			}
+
+			if (event.type == sf::Event::KeyPressed) {
+				switch (event.key.code)
+				{
+				case sf::Keyboard::P:
+					debug.active_AABBDynamic = !debug.active_AABBDynamic;
+					break;
+
+				case sf::Keyboard::O:
+					debug.active_NormalContact = !debug.active_NormalContact;
+					break;
+
+				case sf::Keyboard::I:
+					debug.active_PointContact = !debug.active_PointContact;
+					break;
+
+				case sf::Keyboard::U:
+					debug.active_Velocity = !debug.active_Velocity;
+					break;
+				}
 			}
 		}
 

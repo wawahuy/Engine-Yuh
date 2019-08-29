@@ -12,6 +12,13 @@ public:
 	virtual void DrawLine(const Vec2f& pA, const Vec2f& pB) = 0;
 	virtual void DrawArrow(const Vec2f& p, const Vec2f& n, float length) = 0;
 	virtual void DrawAABB(const Vec2f& min, const Vec2f& max) = 0;
+	virtual void DrawPoint(const Vec2f& p) = 0;
+	virtual void SetColor(int color) = 0;
+
+	bool active_PointContact  = true;
+	bool active_NormalContact = true;
+	bool active_AABBDynamic   = false;
+	bool active_Velocity	  = true;
 };
 
 

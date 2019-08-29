@@ -17,18 +17,6 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 
 	dt /= 1000;
 
-	for (auto body = m_body_begin; body; body = body->m_next) {
-		for (auto collider = body->m_collider_begin; collider; collider = collider->m_next) {
-			
-			if (collider->m_isChange || body->m_isChange) {
-				m_contact_manager.m_broadphase.Move(collider);
-				collider->m_isChange = false;
-			}
-		}
-
-		body->m_isChange = false;
-	}
-
 	for (auto contact = m_contact_manager.m_contact_begin; contact; contact = contact->m_next) {
 		const Manifold& mf = contact->m_manifold;
 		if (mf.contact_count == 0)
@@ -46,7 +34,7 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 
 		float e = min(cA->m_restitution, cB->m_restitution);
 
-		if (!(bA->m_invMass || bB->m_invMass))
+		if (bA->m_type == Body::b_Static && bB->m_type == Body::b_Static)
 			continue;
 
 		float j = -(1 + e) * velAlongNormal;
@@ -67,7 +55,7 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 		Body* bA = cA->m_body;
 		Body* bB = cB->m_body;
 
-		if (!(bA->m_invMass && bB->m_invMass))
+		if (bA->m_type == Body::b_Static && bB->m_type == Body::b_Static)
 			continue;
 
 		const float percent = 0.2; // usually 20% to 80%
@@ -78,8 +66,15 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 	}
 
 	for (auto body = m_body_begin; body; body = body->m_next) {
+		
 		for (auto collider = body->m_collider_begin; collider; collider = collider->m_next) {
+			if (collider->m_isChange || body->m_isChange) {
+				m_contact_manager.m_broadphase.Move(collider);
+				collider->m_isChange = false;
+			}
 		}
+		body->m_isChange = false;
+
 
 		if (body->m_type == Body::b_Static)
 			continue;
@@ -152,29 +147,51 @@ void World::SetDrawDebug(IDrawDebug * debug)
 void World::DrawDebug(const AABB& clip)
 {
 	Broadphase *bp = m_contact_manager.GetBroadphase();
-
 	std::vector<ICollider *> list_collider;
-	std::vector<AABB *> list_aabb;
-	bp->QueryAllAABB(clip, list_aabb, list_collider);
+
+	/// Draw AABB Dynamic
+	if (m_drawDebug->active_AABBDynamic) {
+		std::vector<AABB *> list_aabb;
+		bp->QueryAllAABB(clip, list_aabb, list_collider);
+
+		m_drawDebug->SetColor(2);
+
+		for (auto aabb : list_aabb) {
+			m_drawDebug->DrawAABB(aabb->min, aabb->max);
+		}
+	}
+	else {
+		bp->Query(clip, list_collider);
+	}
+
+
+	/// Draw veclocity
+	if (m_drawDebug->active_Velocity) {
+		m_drawDebug->SetColor(1);
+
+		for (auto collider : list_collider) {
+			Body* body		= collider->m_body;
+			float leng_vel	= VectorLength(body->m_linearVelocity);
+			m_drawDebug->DrawArrow(body->m_tfx.m_position, body->m_linearVelocity / leng_vel, leng_vel);
+		}
+	}
+
+	m_drawDebug->SetColor(3);
+	m_drawDebug->SetColor(5);
+	m_drawDebug->SetColor(10);
 
 	AVLNode<ContactConnect>* stack[256];
 	size_t stack_count;
 
 	for (auto collider : list_collider) {
 
-		/// Draw veclocity
-		Body* body = collider->m_body;
-		float lvel = VectorLength(body->m_linearVelocity);
-		m_drawDebug->DrawArrow(body->m_tfx.m_position, body->m_linearVelocity / lvel, lvel);
-
-
-		/// Shape
+		/// Draw Shape
 		switch (collider->m_type)
 		{
-		case ICollider::c_Circle: 
+		case ICollider::c_Circle:	
 		{
-			CircleShape* c = (CircleShape*)collider;
-			Vec2f p = c->m_body->m_tfx*c->m_position;
+			CircleShape* c	= (CircleShape*)collider;
+			Vec2f p			= c->m_body->m_tfx*c->m_position;
 			m_drawDebug->DrawCircle(p, c->m_radius);
 			break;
 		}
@@ -186,7 +203,9 @@ void World::DrawDebug(const AABB& clip)
 		stack_count = 0;
 		stack[stack_count++] = collider->m_listContact.GetRoot();
 		while (stack_count) {
+
 			auto node = stack[--stack_count];
+
 			if (node) {
 				stack[stack_count++] = node->left;
 				stack[stack_count++] = node->right;
@@ -194,23 +213,29 @@ void World::DrawDebug(const AABB& clip)
 				Contact* contact = node->data.contact;
 				const Manifold& mf = contact->m_manifold;
 
-				if (mf.contact_count == 0)
+
+				if (mf.contact_count == 0 || mf.colliderB == collider)
 					continue;
+
+				///Vec2f originA = mf.colliderA->m_body->m_tfx.m_position;
+				///Vec2f originB = mf.colliderB->m_body->m_tfx.m_position;
+				///m_drawDebug->DrawLine(originA, originB);
 
 				for (int i = 0; i < mf.contact_count; i++) {
 					const Vec2f& c = mf.contact[i];
-					m_drawDebug->DrawArrow(c, mf.normal, mf.penetration);
+					
+					if(m_drawDebug->active_NormalContact)
+						m_drawDebug->DrawArrow(c, mf.normal, mf.penetration);
+					
+					if (m_drawDebug->active_PointContact)
+						m_drawDebug->DrawPoint(c);
 				}
 
 			}
 		}
 
+		///
 	}
-
-	for (auto aabb : list_aabb) {
-		m_drawDebug->DrawAABB(aabb->min, aabb->max);
-	}
-
 
 }
 

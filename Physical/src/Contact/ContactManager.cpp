@@ -103,7 +103,9 @@ void ContactManager::Collide()
 		Body* bodyA = colliderA->m_body;
 		Body* bodyB = colliderB->m_body;
 
-		if (bodyA == bodyB || bodyA->m_active == false || bodyB->m_active == false) {
+		bool pStatic = bodyA->m_type == Body::b_Static && bodyB->m_type == Body::b_Static;
+
+		if ( bodyA == bodyB || pStatic || bodyA->m_active == false || bodyB->m_active == false) {
 			Contact* tmpDel = contact;
 			contact = contact->m_next;
 			Destroy(tmpDel);
@@ -137,9 +139,13 @@ void ContactManager::Collide()
 		}
 
 
-		if (touching == false && wasTouching && m_listener) {
-			contact->m_flag ^= Contact::FlagContact::touch;
-			m_listener->EndContact(contact);
+		if (touching == false) {
+			contact->m_manifold.contact_count = 0;
+
+			if (wasTouching && m_listener) {
+				contact->m_flag ^= Contact::FlagContact::touch;
+				m_listener->EndContact(contact);
+			}
 		}
 
 
