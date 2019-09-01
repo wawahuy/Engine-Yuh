@@ -8,7 +8,7 @@ S_NS_PHYSICAL
 /// Lớp vẽ gỡ lỗi
 class IDrawDebug {
 public:
-	virtual void DrawCircle(const Vec2f& position, float radius) = 0;
+	virtual void DrawCircle(const Vec2f& position, float radius, float orient) = 0;
 	virtual void DrawLine(const Vec2f& pA, const Vec2f& pB) = 0;
 	virtual void DrawArrow(const Vec2f& p, const Vec2f& n, float length) = 0;
 	virtual void DrawAABB(const Vec2f& min, const Vec2f& max) = 0;

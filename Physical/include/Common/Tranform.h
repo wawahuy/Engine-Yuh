@@ -24,7 +24,7 @@ public:
 	void rotate(float angle);
 	void translate(const Vec2f& trs);
 
-	Vec2f operator*(const Vec2f& v);
+	Vec2f operator*(const Vec2f& v) const;
 
 private:
 	Vec2f m_position;
@@ -95,7 +95,7 @@ inline void Tranform::translate(const Vec2f & trs)
 	m_position += trs;
 }
 
-inline Vec2f Tranform::operator*(const Vec2f & v)
+inline Vec2f Tranform::operator*(const Vec2f & v) const
 {
 	Vec2f vOut = m_position;
 	vOut.x += v.x*m_cos - v.y*m_sin;

@@ -24,22 +24,6 @@ inline yuh::Vec3<T>::Vec3(const Vec3<T> v2, T z)
 	z = z;
 }
 
-
-template<typename T>
-template<typename U>
-inline Vec3<T>::operator Vec3<U>()
-{
-	return Vec3<U>(x, y, z);
-}
-
-
-template<typename T>
-inline Vec3<T>::operator T*()
-{
-	return &x;
-}
-
-
 // a+b
 template<typename T>
 Vec3<T> operator+(const Vec3<T>& a, const Vec3<T>& b) {

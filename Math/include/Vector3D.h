@@ -45,13 +45,6 @@ namespace yuh {
 
 		};
 
-
-		/* Ep kieu
-		 *
-		 */
-		template <typename U> explicit operator Vec3<U>();
-		operator T*();
-
 	};
 
 	/* Type Vec3[x]

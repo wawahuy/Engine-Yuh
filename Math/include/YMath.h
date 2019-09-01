@@ -1,6 +1,9 @@
 #pragma once
 
+
 namespace yuh {
+
+	const float PI = 3.14159265359;
 
 	template<typename T>
 	T max(T a, T b) {

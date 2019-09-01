@@ -32,10 +32,10 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 		if (velAlongNormal > 0)
 			continue;
 
-		float e = min(cA->m_restitution, cB->m_restitution);
-
 		if (bA->m_type == Body::b_Static && bB->m_type == Body::b_Static)
 			continue;
+
+		float e = min(cA->m_restitution, cB->m_restitution);
 
 		float j = -(1 + e) * velAlongNormal;
 		j /= bA->m_invMass + bB->m_invMass;
@@ -75,12 +75,17 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 		}
 		body->m_isChange = false;
 
-
 		if (body->m_type == Body::b_Static)
 			continue;
 
-		body->m_linearVelocity += m_gravity*dt*interationVeclocity;
+
+		body->m_angularVelocity += body->m_torque*body->m_invInertia*dt;
+		body->m_tfx.rotate(body->m_angularVelocity* dt);
+
+		Vec2f acceleration = m_gravity + body->m_force*body->m_invMass;
+		body->m_linearVelocity += acceleration*dt*interationVeclocity;
 		body->m_tfx.m_position += body->m_linearVelocity*dt*interationPosition;
+
 		body->m_isChange = true;
 	}
 
@@ -191,8 +196,9 @@ void World::DrawDebug(const AABB& clip)
 		case ICollider::c_Circle:	
 		{
 			CircleShape* c	= (CircleShape*)collider;
-			Vec2f p			= c->m_body->m_tfx*c->m_position;
-			m_drawDebug->DrawCircle(p, c->m_radius);
+			const Tranform& tfx	= c->m_body->m_tfx;
+			Vec2f p			= tfx*c->m_position;
+			m_drawDebug->DrawCircle(p, c->m_radius, tfx.m_angle);
 			break;
 		}
 
@@ -217,9 +223,6 @@ void World::DrawDebug(const AABB& clip)
 				if (mf.contact_count == 0 || mf.colliderB == collider)
 					continue;
 
-				///Vec2f originA = mf.colliderA->m_body->m_tfx.m_position;
-				///Vec2f originB = mf.colliderB->m_body->m_tfx.m_position;
-				///m_drawDebug->DrawLine(originA, originB);
 
 				for (int i = 0; i < mf.contact_count; i++) {
 					const Vec2f& c = mf.contact[i];

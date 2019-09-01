@@ -39,12 +39,7 @@ public:
 	void  SetOrient(float o);
 	float GetOrient();
 
-	Vec2f	m_force;
-	float	m_torque;
-	float	m_mass;
-	float	m_invMass;
-	float	m_inertia;
-	float	m_invInertia;
+	void  ResetDataMass();
 
 private:
 	Body();
@@ -66,6 +61,13 @@ private:
 	/// Vận tốc
 	Vec2f  m_linearVelocity;
 	float  m_angularVelocity;
+
+	Vec2f	m_force;
+	float	m_torque;
+	float	m_mass;
+	float	m_invMass;
+	float	m_inertia;
+	float	m_invInertia;
 
 	/// List Collider
 	ICollider* m_collider_begin;
@@ -107,6 +109,7 @@ inline float Body::GetOrient()
 {
 	return m_tfx.GetAngle();
 }
+
 
 inline void Body::SetActive(bool active) {
 	m_active = active;

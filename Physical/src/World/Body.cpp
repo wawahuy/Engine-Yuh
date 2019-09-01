@@ -148,5 +148,8 @@ void Body::Free()
 }
 
 
+void Body::ResetDataMass()
+{
+}
 
 E_NS

@@ -54,6 +54,12 @@ bool CircleShape::collide(ICollider * B, Manifold & mf)
 	return true;
 }
 
+void CircleShape::computeMass(MassData * massdata)
+{
+	massdata->mass = m_density*m_radius*m_radius*PI;
+	massdata->center = m_position;
+}
+
 
 E_NS
 

@@ -15,20 +15,6 @@ inline Vec2<T>::Vec2(T x, T y)
 	this->y = y;
 }
 
-template<typename T>
-template<typename U>
-inline Vec2<T>::operator Vec2<U>()
-{
-	return Vec2<U>(x, y);
-}
-
-
-template<typename T>
-inline Vec2<T>::operator T*()
-{
-	return &x;
-}
-
 //a+=
 template<typename T>
 void operator+=(Vec2<T>& a, const Vec2<T>& b) {

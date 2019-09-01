@@ -63,16 +63,12 @@ namespace yuh {
 		/// TÍnh chiều cao node
 		void ComputeHeight(AVLNode<T> *node);
 
-
-		/// ------ TEST ---------------
 		/// Balance
 		AVLNode<T>* Balance(AVLNode<T> *node);
 
 		/// Xoay
 		AVLNode<T>* RotateLeft(AVLNode<T> *nodeA);
 		AVLNode<T>* RotateRight(AVLNode<T> *nodeA);
-
-		/// ------ END TEST -----------
 
 		/// Tạo node
 		AVLNode<T>* CreateNode(const T& data);

@@ -14,6 +14,8 @@ public:
 	AABB getAABB();
 
 	bool collide(ICollider* B, Manifold& mf);
+	
+	void computeMass(MassData* massdata);
 
 	void  SetLocalPosition(const Vec2f& p);
 	Vec2f GetLocalPosition();

@@ -58,7 +58,6 @@ private:
 	sf::VertexArray m_vao;
 };
 
-
 class DrawDebug : public physical::IDrawDebug {
 public:
 	DrawDebug(sf::RenderTarget* render, sf::Font* font) {
@@ -69,6 +68,8 @@ public:
 		m_circle.setOutlineColor(sf::Color::White);
 		m_circle.setOutlineThickness(1);
 		m_circle.setFillColor(sf::Color::Transparent);
+		m_circle_radius.setSize({ 1, 1 });
+		m_circle_radius.setFillColor(sf::Color::White);
 
 		m_aabb.setFillColor(sf::Color::Transparent);
 		m_aabb.setOutlineColor(sf::Color(0, 40, 0));
@@ -83,11 +84,16 @@ public:
 		matrix[13] = HEIGHT;
 	}
 
-	void DrawCircle(const Vec2f& position, float radius) {
+	void DrawCircle(const Vec2f& position, float radius, float orient) {
 		m_circle.setRadius(radius);
 		m_circle.setPosition({position.x, position.y}); 
 		m_circle.setOrigin(radius, radius);
 		m_render->draw(m_circle, m_coord);
+
+		m_circle_radius.setScale({ radius, 1 });
+		m_circle_radius.setRotation(orient*180.0f/3.14f);
+		m_circle_radius.setPosition({ position.x, position.y });
+		m_render->draw(m_circle_radius, m_coord);
 	}
 
 	void DrawAABB(const Vec2f& min, const Vec2f& max) {
@@ -150,6 +156,7 @@ public:
 
 private:
 	sf::CircleShape		m_circle;
+	sf::RectangleShape  m_circle_radius;
 	sf::RectangleShape	m_aabb;
 	sf::RectangleShape	m_point;
 	ArrowLine			m_arrow;
@@ -157,7 +164,6 @@ private:
 	sf::Font*			m_font;
 	sf::Transform		m_coord;
 };
-
 
 class FPSCounter : public sf::Drawable, public sf::Transformable  {
 public:
@@ -229,15 +235,15 @@ int main()
 		auto bd = world.CreateBody();
 		bd->SetPosition({ 30.0f + i*60.0f, 100.0f });
 		bd->SetType(physical::Body::b_Static);
-		bd->m_mass = 0.0f;
-		bd->m_invMass = 0.0f;
 
 		auto cl = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
-		cl->m_restitution = 0.1;
-		cl->m_friction = 0.1;
-		cl->m_density = 28;
+		cl->SetDensity(1.0f);
+		cl->SetRestitution(0.1f);
+		cl->SetFriction(0.1f);
 		cl->SetRadius(30.0f);
 		cl->SetLocalPosition({ 0, 0 });
+
+		bd->ResetDataMass();
 	}
 
 	while (window.isOpen())
@@ -251,26 +257,27 @@ int main()
 			if (event.type == sf::Event::MouseButtonPressed) {
 				sf::Vector2i pCursor = sf::Mouse::getPosition(window);
 
+				float rl = rand() % 20 + 20;
+
 				auto bd = world.CreateBody();
 				bd->SetPosition({ (float)pCursor.x, (float)HEIGHT - pCursor.y });
-				bd->m_mass = 10.0f;
-				bd->m_invMass = 0.1f;
 
-				float rl = rand() % 20 + 20;
 				auto cl = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
-				cl->m_restitution = 0.1;
-				cl->m_friction = 0.1;
-				cl->m_density = 28;	/// 2d => kg/m^2 = m/S
+				cl->SetDensity(1.0f);
+				cl->SetRestitution(0.1f);
+				cl->SetFriction(0.1f);
 				cl->SetRadius(rl);
-				cl->SetLocalPosition({ 0, 0 });
+				cl->SetLocalPosition({ -rl, 0 });
 
-				//float rm = rand() % 20 + 20;
-				//auto cm = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
-				//cm->m_restitution = 0.1;
-				//cm->m_friction = 0.1;
-				//cm->m_density = 28;	/// 2d => kg/m^2 = m/S
-				//cm->SetRadius(rm);
-				//cm->SetLocalPosition({ rm, 0 });
+				float rm = rand() % 20 + 20;
+				auto cm = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
+				cm->SetDensity(1.0f);
+				cm->SetRestitution(0.1f);
+				cm->SetFriction(0.1f);
+				cm->SetRadius(rm);
+				cm->SetLocalPosition({ rm, 0 });
+
+				bd->ResetDataMass();
 			}
 
 			if (event.type == sf::Event::KeyPressed) {

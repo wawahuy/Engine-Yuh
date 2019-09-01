@@ -10,6 +10,17 @@ class Body;
 class Contact;
 class ICollider;
 
+
+/// Thông tin khối lượng, moment quán tính
+struct MassData {
+	float mass;
+	float inertia;
+	Vec2f center;
+};
+
+
+
+
 /// Kết nối tiếp xúc trên Collider A với Collider B
 struct ContactConnect {
 	ICollider *other;
@@ -47,16 +58,22 @@ public:
 
 	virtual AABB  getAABB() = 0;
 	virtual bool  collide(ICollider* colider, Manifold& manifold) = 0;
+	virtual void  computeMass(MassData* massdata) = 0;
+
 	
 	Body* getBody();
 	Type  getType();
 
+	void SetDensity(float density);
+	void SetRestitution(float restitution);
+	void SetFriction(float friction);
+
+protected:
+	bool    m_isChange;
 	float	m_density;
 	float	m_restitution;
 	float	m_friction;
 
-protected:
-	bool  m_isChange;
 
 private:
 	Body *m_body;
@@ -77,10 +94,12 @@ private:
 inline ICollider::ICollider()
 {
 	m_restitution = 0;
-
-
+	m_friction = 0;
+	m_density = 0;
 	m_isChange = false;
 }
+
+
 
 inline Body* ICollider::getBody() {
 	return m_body;
@@ -88,6 +107,21 @@ inline Body* ICollider::getBody() {
 
 inline ICollider::Type  ICollider::getType() {
 	return m_type;
+}
+
+inline void ICollider::SetDensity(float density)
+{
+	m_density = density;
+}
+
+inline void ICollider::SetRestitution(float restitution)
+{
+	m_restitution = restitution;
+}
+
+inline void ICollider::SetFriction(float friction)
+{
+	m_friction = friction;
 }
 
 
