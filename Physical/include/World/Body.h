@@ -39,6 +39,11 @@ public:
 	void  SetOrient(float o);
 	float GetOrient();
 
+	void  ApplyTorque(float torque);
+	float GetTorque();
+
+	Vec2f GetWorldCenter();
+
 	void  ResetDataMass();
 
 private:
@@ -62,6 +67,7 @@ private:
 	Vec2f  m_linearVelocity;
 	float  m_angularVelocity;
 
+	Vec2f	m_gravityScale;
 	Vec2f	m_force;
 	float	m_torque;
 	float	m_mass;
@@ -108,6 +114,21 @@ inline void Body::SetOrient(float o)
 inline float Body::GetOrient()
 {
 	return m_tfx.GetAngle();
+}
+
+inline void Body::ApplyTorque(float torque)
+{
+	m_torque = torque;
+}
+
+inline float Body::GetTorque()
+{
+	return m_torque;
+}
+
+inline Vec2f Body::GetWorldCenter()
+{
+	return m_tfx*m_tfx.m_origin;
 }
 
 

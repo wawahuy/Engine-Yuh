@@ -58,6 +58,7 @@ void CircleShape::computeMass(MassData * massdata)
 {
 	massdata->mass = m_density*m_radius*m_radius*PI;
 	massdata->center = m_position;
+	massdata->inertia = massdata->mass*(0.5f*m_radius*m_radius + m_position*m_position);
 }
 
 

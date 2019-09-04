@@ -42,6 +42,7 @@ public:
 	void DrawDebug(const AABB& clip);
 
 	ContactManager* GetContactManager();
+	size_t	GetNumBodies();
 
 private:
 	ContactManager m_contact_manager;
@@ -50,12 +51,18 @@ private:
 
 	Vec2f m_gravity;
 
+	size_t m_num_bodies;
 	Body* m_body_begin;
 	Body* m_body_end;
 };
 
 inline ContactManager* World::GetContactManager() {
 	return &m_contact_manager;
+}
+
+inline size_t World::GetNumBodies()
+{
+	return m_num_bodies;
 }
 
 E_NS

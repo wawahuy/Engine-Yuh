@@ -146,6 +146,11 @@ public:
 			m_point.setFillColor(color);
 			break;
 
+		case 5:
+			color = sf::Color::Magenta;
+			m_point.setFillColor(color);
+			break;
+
 		default:
 			color = sf::Color::White;
 			m_circle.setOutlineColor(color);
@@ -195,6 +200,73 @@ private:
 	sf::Clock	 m_timer;
 };
 
+class DrawDebugDeltail : public sf::Drawable, public sf::Transformable {
+public:
+
+	const int NUM_BODIES = 0;
+	const int NUM_BROADPHASE_NODE = 1;
+	const int HEIGHT_BROADPHASE = 2;
+	const int NUM_CONTACT = 3;
+
+	struct LineString {
+		sf::Text title;
+		sf::Text value;
+	};
+
+	DrawDebugDeltail(sf::Font* font, physical::World* world) {
+		m_font = font;
+		m_world = world;
+		m_size = 0;
+
+		AddTitle(NUM_BODIES, "Num Bodies");
+		AddTitle(NUM_BROADPHASE_NODE, "BP. Num NODE");
+		AddTitle(HEIGHT_BROADPHASE, "BP. Height");
+		AddTitle(NUM_CONTACT, "Num Contact");
+	}
+
+
+	void AddTitle(int key, std::string title) {
+		m_list.insert(std::make_pair(key, LineString()));
+		m_list[key].title.setFont(*m_font);
+		m_list[key].title.setString(title + ":");
+		m_list[key].title.setCharacterSize(12);
+		m_list[key].title.setPosition({0.0f, m_size*10.0f});
+
+		m_list[key].value.setFont(*m_font);
+		m_list[key].value.setCharacterSize(12);
+		m_list[key].value.setPosition({ 50.0f , m_size * 10.0f });
+
+		m_size++;
+	}
+
+private:
+	/// sf::Drawable::draw override
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+		for (auto p : m_list) {
+
+			if (p.first == NUM_BODIES) {
+				p.second.value.setString(std::to_string(m_world->GetNumBodies()));
+			}
+			else if (p.first == NUM_BROADPHASE_NODE) {
+				p.second.value.setString(std::to_string(m_world->GetContactManager()->GetBroadphase()->GetNumNode()));
+			}
+			else if (p.first == HEIGHT_BROADPHASE) {
+				p.second.value.setString(std::to_string(m_world->GetContactManager()->GetBroadphase()->GetHeight()));
+			}
+			else if (p.first == NUM_CONTACT) {
+				p.second.value.setString(std::to_string(m_world->GetContactManager()->GetNumContact()));
+			}
+
+			target.draw(p.second.title, p.second.title.getTransform()* getTransform());
+			target.draw(p.second.value, p.second.value.getTransform()* getTransform());
+		}
+	}
+
+	size_t m_size;
+	sf::Font* m_font;
+	physical::World* m_world;
+	std::map<int, LineString> m_list;
+};
 
 class ContactListener : public physical::ContactListener {
 public:
@@ -207,27 +279,74 @@ public:
 	}
 };
 
+void CreateBody(physical::World& world, const Vec2f& pos) {
+	auto bd = world.CreateBody();
+	bd->SetPosition(pos);
+
+	float rl = rand() % 10 + 10;
+	auto cl = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
+	cl->SetDensity(0.01f);
+	cl->SetRestitution(0.1f);
+	cl->SetFriction(0.1f);
+	cl->SetRadius(rl);
+	cl->SetLocalPosition({ -rl, 0 });
+
+	float rm = rand() % 10 + 10;
+	auto cm = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
+	cm->SetDensity(0.01f);
+	cm->SetRestitution(0.1f);
+	cm->SetFriction(0.1f);
+	cm->SetRadius(rm);
+	cm->SetLocalPosition({ rm, 0 });
+
+	float rv = rand() % 10 + 10;
+	auto cv = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
+	cv->SetDensity(0.01f);
+	cv->SetRestitution(0.1f);
+	cv->SetFriction(0.1f);
+	cv->SetRadius(rv);
+	cv->SetLocalPosition({ 0, -rv });
+
+	float rb = rand() % 10 + 10;
+	auto cb = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
+	cb->SetDensity(0.01f);
+	cb->SetRestitution(0.1f);
+	cb->SetFriction(0.1f);
+	cb->SetRadius(rv);
+	cb->SetLocalPosition({ 0, rb });
+
+	bd->ResetDataMass();
+}
 
 int main()
 {
+	/// Windows
 	sf::ContextSettings setting;
 	setting.antialiasingLevel = 4;
 	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Testbed Physical", 7U, setting);
 	window.setFramerateLimit(60);
-
 	font.loadFromFile("UTM Dax.ttf");
+
+	/// Physical
+	const float positionIterations = 6;
+	const float velocityIterations = 12;
+	physical::World world(Vec2f(0, -9.8f));
+	world.GetContactManager()->SetListener(new ContactListener());
+
+	/// Draw Debug
+	bool debugAdd = false;
+	bool debugDraw = true;
+
+	DrawDebugDeltail debugDeltail(&font, &world);
+	debugDeltail.setPosition(800, 20);
+
+	DrawDebug debug(&window, &font);
+	world.SetDrawDebug(&debug);
+
 	FPSCounter fps(&font);
 	fps.setPosition(10, 10);
 
-	const float positionIterations = 6;
-	const float velocityIterations = 12;
-
-	DrawDebug debug(&window, &font);
-
-	physical::World world(Vec2f(0, -9.8f));
-	world.GetContactManager()->SetListener(new ContactListener());
-	world.SetDrawDebug(&debug);
-	
+	/// Clip screen
 	physical::AABB clipScreen;
 	clipScreen.max = { WIDTH, HEIGHT };
 
@@ -244,7 +363,7 @@ int main()
 		cl->SetLocalPosition({ 0, 0 });
 
 		bd->ResetDataMass();
-	}
+	} 
 
 	while (window.isOpen())
 	{
@@ -256,28 +375,7 @@ int main()
 
 			if (event.type == sf::Event::MouseButtonPressed) {
 				sf::Vector2i pCursor = sf::Mouse::getPosition(window);
-
-				float rl = rand() % 20 + 20;
-
-				auto bd = world.CreateBody();
-				bd->SetPosition({ (float)pCursor.x, (float)HEIGHT - pCursor.y });
-
-				auto cl = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
-				cl->SetDensity(1.0f);
-				cl->SetRestitution(0.1f);
-				cl->SetFriction(0.1f);
-				cl->SetRadius(rl);
-				cl->SetLocalPosition({ -rl, 0 });
-
-				float rm = rand() % 20 + 20;
-				auto cm = (physical::CircleShape*)bd->CreateCollider(physical::ICollider::c_Circle);
-				cm->SetDensity(1.0f);
-				cm->SetRestitution(0.1f);
-				cm->SetFriction(0.1f);
-				cm->SetRadius(rm);
-				cm->SetLocalPosition({ rm, 0 });
-
-				bd->ResetDataMass();
+				CreateBody(world, { (float)pCursor.x, (float)HEIGHT - pCursor.y });
 			}
 
 			if (event.type == sf::Event::KeyPressed) {
@@ -298,8 +396,21 @@ int main()
 				case sf::Keyboard::U:
 					debug.active_Velocity = !debug.active_Velocity;
 					break;
+
+				case sf::Keyboard::Q:
+					debugAdd = !debugAdd;
+					break;
+
+				case sf::Keyboard::W:
+					debugDraw = !debugDraw;
+					break;
+
 				}
 			}
+		} 
+
+		if (debugAdd) {
+			CreateBody(world, {(float)(rand()%WIDTH), (float)(rand()%200 + HEIGHT)});
 		}
 
 		fps.Update();
@@ -307,7 +418,11 @@ int main()
 
 
 		window.clear();
-		world.DrawDebug(clipScreen);
+		
+		if(debugDraw)
+			world.DrawDebug(clipScreen);
+
+		window.draw(debugDeltail);
 		window.draw(fps);
 		window.display();
 	}

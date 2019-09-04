@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../Export.h"
 #include <Vector2D.h>
 
@@ -15,8 +15,10 @@ public:
 	void SetPosition(const Vec2f& position);
 	void SetAngle(float angle);
 	void Set(const Vec2f& position, float angle);
+	void SetOrigin(const Vec2f& origin);
 
 	Vec2f GetPosition();
+	Vec2f GetOrigin();
 	float GetAngle();
 	Vec2f GetRotXAxis();
 	Vec2f GetRotYAxis();
@@ -28,6 +30,7 @@ public:
 
 private:
 	Vec2f m_position;
+	Vec2f m_origin;
 	float m_angle;
 	float m_sin;
 	float m_cos;
@@ -39,7 +42,8 @@ inline Tranform::Tranform() {
 
 inline void Tranform::SetIdentity()
 {
-	m_position = Vec2f(0, 0);
+	m_position.Reset();
+	m_origin.Reset();
 	m_sin = 0;
 	m_cos = 1;
 	m_angle = 0;
@@ -63,9 +67,19 @@ inline void Tranform::Set(const Vec2f & position, float angle)
 	SetAngle(angle);
 }
 
+inline void Tranform::SetOrigin(const Vec2f & origin)
+{
+	m_origin = origin;
+}
+
 inline Vec2f Tranform::GetPosition()
 {
 	return m_position;
+}
+
+inline Vec2f Tranform::GetOrigin()
+{
+	return m_origin;
 }
 
 inline float Tranform::GetAngle()
@@ -95,12 +109,24 @@ inline void Tranform::translate(const Vec2f & trs)
 	m_position += trs;
 }
 
+
 inline Vec2f Tranform::operator*(const Vec2f & v) const
 {
-	Vec2f vOut = m_position;
-	vOut.x += v.x*m_cos - v.y*m_sin;
-	vOut.y += v.x*m_sin + v.y*m_cos;
-	return vOut;
+	///	 Ma trận cột
+	///   __							  __		 __				  __		_	_
+	///  |	cos		-sin		trX	+ oriX	|		|	1	0	-oriX	|		| x	|
+	///	 |	sin		 cos		trY + oriY	|	*	|	0	1	-oriY	|	*	| y |
+	///  |	0		 0			1			|		|	0	0	 1		|		| 1 |
+	///	 |__							  __|		|__				  __|		|_ _|
+	
+	Vec2f pori = v;
+	pori.x -= m_origin.x;
+	pori.y -= m_origin.y;
+
+	Vec2f p;
+	p.x = pori.x*cosf(m_angle) - pori.y*sinf(m_angle) + m_position.x + m_origin.x;
+	p.y = pori.x*sinf(m_angle) + pori.y*cosf(m_angle) + m_position.y + m_origin.y;
+	return p;
 }
 
 

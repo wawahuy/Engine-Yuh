@@ -101,6 +101,7 @@ Body::Body()
 	m_linearVelocity = Vec2f(0, 0);
 	m_angularVelocity = 0.0f;
 	m_force = Vec2f(0, 0);
+	m_gravityScale = Vec2f(1, 1);
 	m_torque = 0.0f;
 	m_mass = 0.0f;
 	m_invMass = 0.0f;
@@ -150,6 +151,40 @@ void Body::Free()
 
 void Body::ResetDataMass()
 {
+	m_tfx.m_origin.Reset();
+	m_inertia = 0;
+	
+	MassData massdata;
+	for (auto temp = m_collider_begin; temp; temp = temp->m_next) {
+		temp->computeMass(&massdata);
+		m_mass += massdata.mass;
+		m_tfx.m_origin += massdata.center*massdata.mass;
+		m_inertia += massdata.inertia;
+	}
+
+
+	if (m_mass) {
+		m_invMass = 1 / m_mass;
+		m_tfx.m_origin *= m_invMass;
+	}
+	else {
+		m_tfx.m_origin.Reset();
+	}
+
+
+	if (m_inertia > 0) {
+		m_inertia -= m_mass*m_tfx.m_origin*m_tfx.m_origin;
+		m_invInertia = 1.0f / m_inertia;
+	}
+	else {
+		m_inertia = 0.0f;
+		m_invInertia = 0.0f;
+	}
+
+
+	if (m_type == Body::b_Static) {
+		m_invMass = 0.0f;
+	}
 }
 
 E_NS

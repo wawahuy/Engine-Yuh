@@ -34,6 +34,8 @@ namespace yuh {
 				T u, v;
 			};
 		};
+
+		void Reset();
 	};
 
 	/* Type Vec2[x]
@@ -50,6 +52,12 @@ namespace yuh {
 	typedef Vec2<unsigned long>		Vec2ul;
 
 #include "Vector2D.inl"
+	template<typename T>
+	inline void Vec2<T>::Reset()
+	{
+		x = 0.0f;
+		y = 0.0f;
+	}
 }
 
 

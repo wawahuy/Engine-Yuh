@@ -128,9 +128,22 @@ float VectorCross(const Vec2<T>& v1, const Vec2<T>& v2) {
 
 
 template<typename T>
+Vec2<T> VectorCross(float s, const Vec2<T>& v2) {
+	return Vec2<T>(-s*v2.y, s*v2.x);
+}
+
+
+template<typename T>
 float VectorCorner(const Vec2<T>& v1, const Vec2<T>& v2) {
 	return acosf((v1*v2) / (VectorLength(v1)*VectorLength(v2)));
 }
+
+
+template<typename T>
+Vec2<T> VectorMult(const Vec2<T>& v1, const Vec2<T>& v2) {
+	return Vec2<T>(v1.x*v2.x, v1.y*v2.y);
+}
+
 
 /* Print Vector
  *

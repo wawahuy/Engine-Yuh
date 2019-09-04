@@ -5,6 +5,7 @@ S_NS_PHYSICAL
 
 World::World(const Vec2f& gravity)
 {
+	m_num_bodies = 0;
 	m_gravity = gravity;
 	m_body_begin = NULL;
 	m_body_end = NULL;
@@ -27,7 +28,12 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 		Body* bA = cA->m_body;
 		Body* bB = cB->m_body;
 
-		Vec2f rv = bB->m_linearVelocity - bA->m_linearVelocity;
+		Vec2f ra = mf.contact[0] - bA->GetWorldCenter();
+		Vec2f rb = mf.contact[0] - bB->GetWorldCenter();
+
+		Vec2f rv = bB->m_linearVelocity + VectorCross(bB->m_angularVelocity, rb) -
+				   bA->m_linearVelocity - VectorCross(bA->m_angularVelocity, ra);
+
 		float velAlongNormal = rv*mf.normal;
 		if (velAlongNormal > 0)
 			continue;
@@ -37,12 +43,21 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 
 		float e = min(cA->m_restitution, cB->m_restitution);
 
-		float j = -(1 + e) * velAlongNormal;
-		j /= bA->m_invMass + bB->m_invMass;
+		float raCrossN = VectorCross(ra, mf.normal);
+		float rbCrossN = VectorCross(rb, mf.normal);
+		float invMassSum = bA->m_invMass + bB->m_invMass + raCrossN*raCrossN* bA->m_invInertia + rbCrossN*rbCrossN * bB->m_invInertia;
+		
+		float j = -(1.0f + e) * velAlongNormal;
+		j /= invMassSum;
+		j /= (float)mf.contact_count;
 
 		Vec2f impulse = mf.normal * j;
 		bA->m_linearVelocity -= bA->m_invMass * impulse;
 		bB->m_linearVelocity += bB->m_invMass * impulse;
+
+		bA->m_angularVelocity -= bA->m_invInertia * VectorCross(ra, impulse);
+		bB->m_angularVelocity += bB->m_invInertia * VectorCross(rb, impulse);
+
 	}
 
 	for (auto contact = m_contact_manager.m_contact_begin; contact; contact = contact->m_next) {
@@ -61,6 +76,7 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 		const float percent = 0.2; // usually 20% to 80%
 		const float slop = 0.01; // usually 0.01 to 0.1
 		Vec2f correction = (yuh::max(mf.penetration - slop, 0.0f) / (bA->m_invMass + bB->m_invMass)) * percent * mf.normal;
+
 		bA->m_tfx.m_position -= bA->m_invMass * correction;
 		bB->m_tfx.m_position += bB->m_invMass * correction;
 	}
@@ -75,18 +91,19 @@ void World::Step(float dt, float interationVeclocity, float interationPosition)
 		}
 		body->m_isChange = false;
 
+
 		if (body->m_type == Body::b_Static)
 			continue;
 
-
 		body->m_angularVelocity += body->m_torque*body->m_invInertia*dt;
-		body->m_tfx.rotate(body->m_angularVelocity* dt);
+		body->m_tfx.rotate(body->m_angularVelocity*interationVeclocity/2.0f*dt);
+		body->m_torque = 0;
 
-		Vec2f acceleration = m_gravity + body->m_force*body->m_invMass;
+		Vec2f acceleration = VectorMult(m_gravity, body->m_gravityScale) + body->m_force*body->m_invMass;
 		body->m_linearVelocity += acceleration*dt*interationVeclocity;
 		body->m_tfx.m_position += body->m_linearVelocity*dt*interationPosition;
-
 		body->m_isChange = true;
+
 	}
 
 }
@@ -107,6 +124,7 @@ Body * World::CreateBody()
 	}
 
 	m_body_end = body;
+	++m_num_bodies;
 
 	return body;
 }
@@ -132,6 +150,8 @@ void World::DestroyBody(Body * body)
 	body->Free();
 
 	delete body;
+
+	--m_num_bodies;
 }
 
 void World::SetGravity(const Vec2f& gravity)
@@ -173,16 +193,19 @@ void World::DrawDebug(const AABB& clip)
 	/// Draw veclocity
 	if (m_drawDebug->active_Velocity) {
 		m_drawDebug->SetColor(1);
+		m_drawDebug->SetColor(5);
 
 		for (auto collider : list_collider) {
 			Body* body		= collider->m_body;
 			float leng_vel	= VectorLength(body->m_linearVelocity);
-			m_drawDebug->DrawArrow(body->m_tfx.m_position, body->m_linearVelocity / leng_vel, leng_vel);
+			Vec2f worldCenter = body->m_tfx.m_position + body->m_tfx.m_origin;
+			m_drawDebug->DrawPoint(worldCenter);
+			m_drawDebug->DrawArrow(worldCenter, body->m_linearVelocity / leng_vel, leng_vel);
 		}
 	}
 
 	m_drawDebug->SetColor(3);
-	m_drawDebug->SetColor(5);
+	m_drawDebug->SetColor(4);
 	m_drawDebug->SetColor(10);
 
 	AVLNode<ContactConnect>* stack[256];
