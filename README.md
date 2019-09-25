@@ -15,5 +15,5 @@
 Dự án được xây dựng trên công cụ Visual Studio 2015.
 
 <hr>
-TestBed Physical (26/9/2019):
-[![TestBed Physical](http://img.youtube.com/vi/_L_Wbc4LD6Q/0.jpg)](http://www.youtube.com/watch?v=_L_Wbc4LD6Q "Click to Watch!")
+TestBed Physical (26/9/2019):<br>
+# [![](http://img.youtube.com/vi/_L_Wbc4LD6Q/0.jpg)](http://www.youtube.com/watch?v=_L_Wbc4LD6Q "")
