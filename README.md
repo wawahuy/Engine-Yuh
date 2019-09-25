@@ -13,3 +13,7 @@
 
 </ul>
 Dự án được xây dựng trên công cụ Visual Studio 2015.
+
+<hr>
+TestBed Physical (26/9/2019):
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_L_Wbc4LD6Q" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
